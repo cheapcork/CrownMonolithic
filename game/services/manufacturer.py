@@ -227,9 +227,15 @@ class Manufacturer:
     def produce(self, billet_amount, billet_material_quality) -> None:
         """Устанавливает на производство заготовки из указанного материала"""
         if billet_material_quality == 'normal':
-            self.billets_produced = (billet_amount, 'normal', 'normal')
+            product = (billet_amount, 'normal', 'normal')
+            self.billets_produced = product
+            if product[0] != 0:
+                self.billets_stored.append(product)
             return
-        self.billets_produced = (billet_amount, billet_material_quality, self.machine[0])
+        product = (billet_amount, billet_material_quality, self.machine[0])
+        self.billets_produced = product
+        if product[0] != 0:
+            self.billets_stored.append(product)
         return
 
 
