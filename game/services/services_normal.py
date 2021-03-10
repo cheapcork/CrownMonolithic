@@ -1,4 +1,4 @@
-from manufacturer import Manufacturer
+from manufacturer import ManufacturerNormal as Manufacturer
 from broker import Broker
 from crown import Crown
 
