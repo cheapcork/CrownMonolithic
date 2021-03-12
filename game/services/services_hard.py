@@ -3,7 +3,7 @@
 Данный алгоритм импортирует классы Короны, маклера, производителя, и производит расчёт согласно утверждённой логике.
 """
 from .crown import Crown
-from .manufacturer import ManufacturerHard as Manufacturer
+from .producer import ProducerHard as Manufacturer
 from .broker import Broker
 
 
@@ -51,3 +51,4 @@ trades = [{
 ]
 
 # count_manufacturer_hard(man, machine, production, trades)
+

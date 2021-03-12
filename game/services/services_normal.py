@@ -1,125 +1,247 @@
-from manufacturer import ManufacturerNormal as Manufacturer
-from broker import Broker
-from crown import Crown
+from producer import ProducerNormal
+from broker import BrokerNormal
+from crown import CrownNormal
+from transaction import TransactionNormal
+basic_balance = 4000
+broker_balance = 8000
 
-crown = Crown(6000)
-man_1 = Manufacturer(4000)
-man_2 = Manufacturer(4000)
-man_3 = Manufacturer(4000)
-man_4 = Manufacturer(4000)
-broker_1 = Broker(8000)
-broker_2 = Broker(8000)
+producer_1 = ProducerNormal(basic_balance)
+producer_2 = ProducerNormal(basic_balance)
+producer_3 = ProducerNormal(basic_balance)
+producer_4 = ProducerNormal(basic_balance)
+producer_5 = ProducerNormal(basic_balance)
+producer_6 = ProducerNormal(basic_balance)
+producer_7 = ProducerNormal(basic_balance)
+producer_8 = ProducerNormal(basic_balance)
+producer_9 = ProducerNormal(basic_balance)
+producer_10 = ProducerNormal(basic_balance)
 
-man_1.produce(15, 'normal')
-man_2.produce(10, 'normal')
-man_3.produce(30, 'normal')
-man_4.produce(11, 'normal')
+producer_1.produce(10)
+producer_2.produce(12)
+producer_3.produce(8)
+producer_4.produce(15)
+producer_5.produce(13)
+producer_6.produce(14)
+producer_7.produce(10)
+producer_8.produce(11)
+producer_9.produce(15)
+producer_10.produce(16)
 
-deal_1 = {
-    'terms': {
-        'billets': (15, 'normal', 'normal'),
-        'price': 150,
-        'transporting_cost': 10
-    }
+
+broker_1 = BrokerNormal(8000)
+broker_2 = BrokerNormal(8000)
+broker_3 = BrokerNormal(8000)
+
+crown = CrownNormal(broker_balance)
+
+
+terms_1 = {
+    'quantity': 10,
+    'price': 100,
+    'transporting_cost': 10
 }
 
-deal_2 = {
-    'terms': {
-        'billets': (10, 'normal', 'normal'),
-        'price': 100,
-        'transporting_cost': 10
-    }
+terms_2 = {
+    'quantity': 12,
+    'price': 200,
+    'transporting_cost': 15
 }
 
-deal_3_1 = {
-    'terms': {
-        'billets': (15, 'normal', 'normal'),
-        'price': 50,
-        'transporting_cost': 10
-    }
+terms_3 = {
+    'quantity': 8,
+    'price': 160,
+    'transporting_cost': 10
 }
 
-deal_3_2 = {
-    'terms': {
-        'billets': (5, 'normal', 'normal'),
-        'price': 110,
-        'transporting_cost': 10
-    }
+terms_4 = {
+    'quantity': 15,
+    'price': 150,
+    'transporting_cost': 20
 }
 
-deal_4 = {
-    'terms': {
-        'billets': (8, 'normal', 'normal'),
-        'price': 88,
-        'transporting_cost': 10
-    }
+terms_5 = {
+    'quantity': 13,
+    'price': 210,
+    'transporting_cost': 20
 }
 
-man_1.make_deal(deal_1)
-man_2.make_deal(deal_2)
-man_3.make_deal(deal_3_1)
-man_3.make_deal(deal_3_2)
-man_4.make_deal(deal_4)
+terms_6 = {
+    'quantity': 14,
+    'price': 170,
+    'transporting_cost': 15
+}
 
-broker_1.make_deal(deal_1)
-broker_2.make_deal(deal_2)
-broker_1.make_deal(deal_3_1)
-broker_2.make_deal(deal_3_2)
-broker_2.make_deal(deal_4)
+terms_7 = {
+    'quantity': 10,
+    'price': 120,
+    'transporting_cost': 10
+}
 
-manufacturers = [man_1, man_2, man_3, man_4]
-brokers = [broker_1, broker_2]
-deals = [deal_1, deal_2, deal_3_1, deal_3_2, deal_4]
+terms_8 = {
+    'quantity': 11,
+    'price': 180,
+    'transporting_cost': 10
+}
+
+terms_9 = {
+    'quantity': 5,
+    'price': 400,
+    'transporting_cost': 15
+}
+
+terms_10 = {
+    'quantity': 16,
+    'price': 190,
+    'transporting_cost': 10
+}
+
+t1 = {
+    'producer': producer_1,
+    'broker': broker_1,
+    'terms': terms_1
+}
+
+t2 = {
+    'producer': producer_2,
+    'broker': broker_1,
+    'terms': terms_2
+}
+
+t3 = {
+    'producer': producer_3,
+    'broker': broker_1,
+    'terms': terms_3
+}
+
+t4 = {
+    'producer': producer_4,
+    'broker': broker_1,
+    'terms': terms_4
+}
+
+t5 = {
+    'producer': producer_5,
+    'broker': broker_2,
+    'terms': terms_5
+}
+
+t6 = {
+    'producer': producer_6,
+    'broker': broker_2,
+    'terms': terms_6
+}
+
+t7 = {
+    'producer': producer_7,
+    'broker': broker_2,
+    'terms': terms_7
+}
+
+t8 = {
+    'producer': producer_8,
+    'broker': broker_3,
+    'terms': terms_8
+}
+
+t9 = {
+    'producer': producer_9,
+    'broker': broker_3,
+    'terms': terms_9
+}
+
+t10 = {
+    'producer': producer_10,
+    'broker': broker_3,
+    'terms': terms_10
+}
+
+market_transactions = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]
+
+producer_1.make_deal(t1)
+producer_2.make_deal(t2)
+producer_3.make_deal(t3)
+producer_4.make_deal(t4)
+producer_5.make_deal(t5)
+producer_6.make_deal(t6)
+producer_7.make_deal(t7)
+producer_8.make_deal(t8)
+producer_9.make_deal(t9)
+producer_10.make_deal(t10)
+broker_1.make_deal(t1)
+broker_1.make_deal(t2)
+broker_1.make_deal(t3)
+broker_1.make_deal(t4)
+broker_2.make_deal(t5)
+broker_2.make_deal(t6)
+broker_2.make_deal(t7)
+broker_3.make_deal(t8)
+broker_3.make_deal(t9)
+broker_3.make_deal(t10)
+
+producers = [producer_1, producer_2, producer_3, producer_4, producer_5, producer_6, producer_7, producer_8, producer_9,
+             producer_10]
+brokers = [broker_1, broker_2, broker_3]
 
 
-def count_manufacturer_normal(manufacturer):
-    costs_production = manufacturer.count_fixed_costs_normal() + manufacturer.count_variable_costs_normal()
-    costs_trading = manufacturer.count_logistics_costs() + manufacturer.count_negotiation_costs()
-    proceeds = manufacturer.count_proceeds()
-    costs_storage = manufacturer.count_storage_costs()
+def count_turn(producer_list: list, broker_list: list, transaction_list: list):
+    """Пересчитывает ход на нормале"""
+    market_volume = 0
+    for transaction in transaction_list:
+        market_volume += transaction['terms']['quantity']
+    market_price = crown.count_market_price(market_volume)
+    # Пересчёт постоянных затрат
+    for producer in producer_list:
+        producer.balance -= producer.count_fixed_costs()
+        if producer.balance < 0:
+            print(f'{producer} is bankrupt! Fixed')
+            producer_list.pop(producer_list.index(producer))
+    for broker in broker_list:
+        broker.balance -= broker.fixed_costs
+        if broker.balance < 0:
+            print(f'{broker} is bankrupt! Fixed')
+            broker_list.pop(broker_list.index(broker))
 
-    balance_1 = manufacturer.balance - costs_production
-    if balance_1 < 0:
-        return f"{manufacturer} банкрот!"
-    balance_2 = balance_1 - costs_trading
-    if balance_2 < 0:
-        return f"{manufacturer} банкрот!"
-    balance_3 = balance_2 + proceeds
-    if balance_3 < 0:
-        return f"{manufacturer} банкрот!"
-    balance_4 = balance_3 - costs_storage
-    if balance_4 < 0:
-        return f"{manufacturer} банкрот!"
-    manufacturer.balance = balance_4
-    manufacturer.store_billets_normal()
-    billets_stored = manufacturer.billets_stored
-    return f'{manufacturer} был пересчитан. Баланс: {manufacturer.balance}.На складе: {billets_stored}'
+    # Пересчёт переменных затрат
+    for producer in producer_list:
+        variable_costs_summarized = producer.count_variable_costs() + producer.count_negotiation_costs() \
+                                    + producer.count_logistics_costs()
+        producer.balance -= variable_costs_summarized
+        if producer.balance < 0:
+            print(f'{producer} is bankrupt! Variable')
+            producer_list.pop(producers.index(producer))
+    for broker in broker_list:
+        broker.balance -= broker.count_purchase_costs()
+        if broker.balance < 0:
+            print(f'{broker} is bankrupt! Variable')
+            broker_list.pop(broker_list.index(broker))
+
+    # Расчёт прибыли
+    for producer in producer_list:
+        producer.balance += producer.count_proceeds()
+    for broker in broker_list:
+        broker.add_shipments()
+        broker.balance += broker.count_proceeds(market_price)
+
+    # Расчёт расходов на хранение и отправка на хранение заготовок
+    for producer in producer_list:
+        producer.balance -= producer.count_storage_costs()
+        if producer.balance < 0:
+            print(f'{producer} is bankrupt! Storage')
+            producer_list.pop(producer_list.index(producer))
+            continue
+        producer.store_billets()
+
+    crown.update_balance(market_volume)
+    for producer in producer_list:
+        print(producer.balance, producer.billets_stored)
+    for broker in broker_list:
+        print(broker.balance)
+    results = {
+        'producers': producer_list,
+        'brokers': broker_list,
+        'crown_balance': crown.balance
+    }
+    return results
 
 
-def count_broker_normal(broker, market_price):
-    broker.add_shipments()
-    balance_1 = broker.balance - broker.fixed_costs
-    if balance_1 < 0:
-        return f'{broker} банкрот!'
-    balance_2 = balance_1 - broker.count_purchase_costs_normal()
-    if balance_2 < 0:
-        return f'{broker} банкрот!'
-    broker.balance = balance_2 + broker.count_proceeds_normal(market_price)
-    return f'{broker} был пересчитан. Баланс: {broker.balance}.'
-
-
-def count_crown(crown_state, market_deals):
-    trade_volume = 0
-    for deal in market_deals:
-        trade_volume += deal['terms']['billets'][0]
-    return crown_state.count_market_price_normal(trade_volume)
-
-
-def test_normal(mans, brs):
-    for man in mans:
-        print(count_manufacturer_normal(man))
-    for br in brs:
-        print(count_broker_normal(br, count_crown(crown, deals)))
-
-
-test_normal(manufacturers, brokers)
+print(count_turn(producers, brokers, market_transactions))
