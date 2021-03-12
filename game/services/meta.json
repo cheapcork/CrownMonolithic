@@ -1,0 +1,82 @@
+{
+  "Meta": {
+    "type": "object",
+    "properties": {
+      "game_type": {
+        "type": "string",
+          "enum": [
+            "normal",
+            "hard"
+          ]
+        },
+      "number_of_players": {
+        "type": "integer",
+        "format": "int64"
+        },
+      "roles": {
+          "type": "string",
+          "enum": [
+            "producer",
+            "broker"
+          ]
+        },
+      "version": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+  "parameters": [
+      {
+        "name":"number_of_brokers",
+        "description":"Количество маклеров на сессию",
+        "schema":{
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      {
+        "name":"crown_starting_balance",
+        "description":"Начальный баланс Короны",
+        "schema":{
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      {
+        "name":"producer_starting_balance",
+        "description":"Начальный баланс производителей",
+        "schema":{
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      {
+        "name":"broker_starting_balance",
+        "description":"Начальный баланс маклеров",
+        "schema":{
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      {
+        "name":"turn_count",
+        "description":"Количество ходов в игре",
+        "schema":{
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      {
+        "name":"turn_durations",
+        "description":"Длительность игровых ходов",
+        "schema":{
+          "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+        }
+      }
+  ]
+}
