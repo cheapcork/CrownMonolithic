@@ -1,32 +1,39 @@
-class Crown:
-    def __init__(self, balance):
-        self.crown_balance = balance
-        self.balance_spruce = self.crown_balance * 45.1220
-        self.balance_oak = self.crown_balance * 41.9512
-        self.balance_redwood = self.crown_balance * 12.9268
+class CrownNormal:
+    def __init__(self, broker_starting_balance):
+        self.balance = broker_starting_balance / 4
 
-    def count_market_price_normal(self, number_of_billets) -> tuple:
-        """Считает рыночную стоимость заготовок для обычной версии"""
-        market_price_normal = self.crown_balance / number_of_billets
-        return market_price_normal
+    def count_market_price(self, market_volume):
+        """Подсчитывает рыночную стоимость одной заготовки """
+        if market_volume == 0:
+            return 160
+        return self.balance / market_volume
 
-    def count_market_price_spruce(self, number_of_billets) -> tuple:
-        """Считает рыночную стоимость заготовок из ели"""
-        market_price_spruce = self.balance_spruce / number_of_billets
-        return market_price_spruce
+    def update_balance(self, market_volume):
+        """Обновляет баланс Короны на следующий ход"""
+        if market_volume < 90:
+            self.balance *= 1.1
+        else:
+            self.balance *= 0.97
+        return
 
-    def count_market_price_oak(self, number_of_billets) -> tuple:
-        """Считает рыночную стоимость заготовок из дуба"""
-        market_price_oak = self.balance_oak / number_of_billets
-        return market_price_oak
 
-    def count_market_price_redwood(self, number_of_billets) -> tuple:
-        """Считает рыночную стоимость заготовок из красного дерева"""
-        market_price_redwood = self.balance_redwood / number_of_billets
-        return market_price_redwood
+class CrownHard:
 
-    def update_balance(self) -> None:
-        """Обновляет баланс Короны в зависимости от состояния рынка"""
-        # TODO Узнать, как происходит обновление состояния рынка
+    cost_price = {
+        'spruce': 185,
+        'oak': 215,
+        'redwood': 265
+    }
+
+    material_market_volume = {
+        'spruce': 50,
+        'oak': 40,
+        'redwood': 10
+    }
+
+    def __init__(self, broker_starting_balance):
+        self.starting_balance = broker_starting_balance / 4
+
+    def count_market_prices(self, market_volume: dict) -> dict:
+        """Возвращает словарь с рыночными ценами по материалам"""
         pass
-

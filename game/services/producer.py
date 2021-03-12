@@ -1,4 +1,4 @@
-class AbstractManufacturer:
+class AbstractProducer:
     # (Ель, Дуб, Красное дерево)
     material = {
         'spruce': 0.5,
@@ -39,7 +39,6 @@ class AbstractManufacturer:
     def store_billets(self) -> None:
         pass
 
-    @property
     def billets_left(self) -> int:
         """Заготовки, оставшиеся на складе производителя"""
         pass
@@ -48,12 +47,8 @@ class AbstractManufacturer:
         """Считает расходы на хранение заготовок"""
         pass
 
-    def update_machine(self, machine_quality, rent_duration) -> None:
-        self.machine = (machine_quality, rent_duration)
-        return
 
-
-class ManufacturerNormal(AbstractManufacturer):
+class ProducerNormal(AbstractProducer):
     # TODO Переопределить метод __init__ для нормала
     #  Скомпоновать методы по нормалу и харду, изначально задать их как абстрактные методы
     #  Хранилища на нормале работают по-другому
@@ -94,7 +89,7 @@ class ManufacturerNormal(AbstractManufacturer):
     def count_logistics_costs(self) -> int:
         costs = 0
         for transaction in self.transactions:
-            costs += transaction['terms']['billets'] * transaction['terms']['transporting_cost']
+            costs += transaction['terms']['quantity'] * transaction['terms']['transporting_cost']
         return costs
 
     def count_negotiation_costs(self) -> int:
@@ -107,15 +102,15 @@ class ManufacturerNormal(AbstractManufacturer):
     def count_proceeds(self) -> int:
         proceeds = 0
         for transaction in self.transactions:
-            proceeds += transaction['terms']['billets'] * transaction['terms']['price']
+            proceeds += transaction['terms']['quantity'] * transaction['terms']['price']
         return proceeds
 
     @property
     def billets_left(self) -> int:
         billets_requested = 0
         for transaction in self.transactions:
-            billets_requested += transaction['terms']['billets']
-        billets_left = self.billets_stored - billets_requested
+            billets_requested += transaction['terms']['quantity']
+        billets_left = self.billets_stored + self.billets_produced - billets_requested
         return billets_left
 
     def store_billets(self) -> None:
@@ -124,11 +119,11 @@ class ManufacturerNormal(AbstractManufacturer):
 
     def produce(self, billet_amount) -> None:
         self.billets_produced = billet_amount
-        self.billets_stored += self.billets_produced
         return
 
 
-class ManufacturerHard(AbstractManufacturer):
+class ProducerHard(AbstractProducer):
+    # FIXME Фиксить нужно вообще всё
 
     available_materials = {
         'spruce': False,
@@ -261,10 +256,14 @@ class ManufacturerHard(AbstractManufacturer):
             spruce_requested = []
             oak_requested = []
             redwood_requested = []
-        return int
+        return 0
 
     def produce(self, billet_amount, quality) -> None:
         self.billets_produced = (billet_amount, quality, self.machine[0])
         if billet_amount > 0:
             self.billets_stored.append(self.billets_produced)
+        return
+
+    def update_machine(self, machine_quality, rent_duration) -> None:
+        self.machine = (machine_quality, rent_duration)
         return
