@@ -1,6 +1,6 @@
 class CrownNormal:
-    def __init__(self, broker_starting_balance, num_of_brokers):
-        self.balance = broker_starting_balance * num_of_brokers / 4
+    def __init__(self):
+        self.balance = 0
 
     def count_market_price(self, market_volume):
         """Подсчитывает рыночную стоимость одной заготовки """
@@ -15,6 +15,10 @@ class CrownNormal:
         else:
             self.balance *= 0.97
         return
+
+    def initiate_balance(self, broker_starting_balance, number_of_brokers):
+        self.balance = broker_starting_balance * number_of_brokers / 4
+        pass
 
 
 class CrownHard:
