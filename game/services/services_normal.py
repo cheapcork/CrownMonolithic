@@ -139,7 +139,6 @@ market_transactions = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]
 #  сделок с производителями в порядке их перечисления. Как это должно выглядеть на самом деле?
 
 def count_turn(producer_list: list, broker_list: list, transaction_list: list) -> dict:
-    """Пересчитывает ход на нормале"""
     bankrupt_list = []
     market_volume = 0
     for transaction in transaction_list:

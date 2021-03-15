@@ -40,17 +40,19 @@ class Session(models.Model):
     name = models.CharField(max_length=150)
     game_type = models.CharField(max_length=15, choices=GAME_TYPES, default='normal')
     number_of_players = models.CharField(max_length=20, choices=PLAYER_NUMBER_PRESET, default='12-14')
-    number_of_brokers = models.PositiveSmallIntegerField(default=3)
+    number_of_brokers = models.PositiveSmallIntegerField(editable=False)
     turn_count = models.PositiveSmallIntegerField()
-    status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='created')
-    broker_starting_balance = models.PositiveSmallIntegerField()
-    producer_starting_balance = models.PositiveSmallIntegerField()
-    transaction_limit = models.PositiveSmallIntegerField(default=2000)
+    status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='created', editable=False)
+    broker_starting_balance = models.PositiveSmallIntegerField(editable=False)
+    producer_starting_balance = models.PositiveSmallIntegerField(editable=False)
+    transaction_limit = models.PositiveSmallIntegerField(default=2000, editable=False)
 
     class Meta:
         verbose_name = 'Сессия'
         verbose_name_plural = 'Сессии'
 
+    # TODO
+    #  Придумать, каким образом менять статусы сессии
     def save(self, *args, **kwargs):
         # Настройка начальных параметров сессии в зависимости от количества игроков
         if not self.pk:
@@ -83,12 +85,11 @@ class Session(models.Model):
             elif self.game_type == 'hard':
                 self.broker_starting_balance = 12000
                 self.producer_starting_balance = 6000
-        super(Session, self).save(*args, **kwargs)
-
+        super().save(*args, **kwargs)
 
 class Player(models.Model):
     nickname = models.CharField(max_length=150)
-    session = models.ManyToManyField(Session, on_delete=models.CASCADE, related_name='player')
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='player')
     role = models.CharField(max_length=20, choices=ROLES, verbose_name='Игровая роль')
     position = models.PositiveSmallIntegerField()
 
@@ -100,7 +101,7 @@ class Player(models.Model):
 class Producer(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='producer')
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
-    balance = models.PositiveIntegerField(default=Session.producer_starting_balance)
+    balance = models.PositiveIntegerField()
     billets_produced = models.PositiveIntegerField()
     billets_stored = models.PositiveIntegerField()
     # FIXME подключить Postgres, чтобы можно было пользоваться полем
@@ -112,19 +113,13 @@ class Producer(models.Model):
         verbose_name = 'Производитель'
         verbose_name_plural = 'Производители'
 
-    def __str__(self):
-        pass
-
 
 class Broker(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='broker')
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
-    balance = models.PositiveIntegerField(default=Session.broker_starting_balance)
+    balance = models.PositiveIntegerField()
     is_bankrupt = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Маклер'
         verbose_name_plural = 'Маклеры'
-
-    def __str__(self):
-        pass
