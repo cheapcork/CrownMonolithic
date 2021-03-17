@@ -1,7 +1,7 @@
-from producer import ProducerNormal
-from broker import BrokerNormal
-from crown import CrownNormal
-from transaction import TransactionNormal as Transaction
+from .producer import ProducerNormal
+from .broker import BrokerNormal
+from .crown import CrownNormal
+from .transaction import TransactionNormal as Transaction
 basic_balance = 4000
 broker_balance = 8000
 
@@ -31,10 +31,6 @@ producer_10.produce(16)
 broker_1 = BrokerNormal(8000)
 broker_2 = BrokerNormal(8000)
 broker_3 = BrokerNormal(8000)
-
-crown = CrownNormal()
-crown.initiate_balance(broker_balance, 3)
-
 
 terms_1 = {
     'quantity': 10,
@@ -138,8 +134,9 @@ market_transactions = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]
 #  На данный момент сделка между маклером и производителем обрывается, если маклер обанкротился при проходе
 #  сделок с производителями в порядке их перечисления. Как это должно выглядеть на самом деле?
 
-def count_turn(producer_list: list, broker_list: list, transaction_list: list) -> dict:
-    bankrupt_list = []
+def count_turn(producer_list: list, broker_list: list, transaction_list: list, crown_balance: float) -> dict:
+    crown = CrownNormal()
+    crown.balance = crown_balance
     market_volume = 0
     for transaction in transaction_list:
         market_volume += transaction['terms']['quantity']
@@ -148,13 +145,11 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list) -
     for producer in producer_list:
         producer.balance -= producer.count_fixed_costs()
         if producer.balance < 0:
-            print(f'{producer} is bankrupt! Fixed')
-            bankrupt_list.append(producer_list.pop(producer_list.index(producer)))
+            producer.is_bankrupt = True
     for broker in broker_list:
         broker.balance -= broker.fixed_costs
         if broker.balance < 0:
-            print(f'{broker} is bankrupt! Fixed')
-            bankrupt_list.append(broker_list.pop(broker_list.index(broker)))
+            broker.is_bankrupt = True
 
     # Пересчёт переменных затрат
     for producer in producer_list:
@@ -162,14 +157,12 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list) -
                                     + producer.count_logistics_costs()
         producer.balance -= variable_costs_summarized
         if producer.balance < 0:
-            print(f'{producer} is bankrupt! Variable')
-            bankrupt_list.append(producer_list.pop(producers.index(producer)))
+            producer.is_bankrupt = True
 
     for broker in broker_list:
         broker.balance -= broker.count_purchase_costs()
         if broker.balance < 0:
-            print(f'{broker} is bankrupt! Variable')
-            bankrupt_list.append(broker_list.pop(broker_list.index(broker)))
+            broker.is_bankrupt = True
 
     # Расчёт прибыли
     for producer in producer_list:
@@ -182,27 +175,14 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list) -
     for producer in producer_list:
         producer.balance -= producer.count_storage_costs()
         if producer.balance < 0:
-            print(f'{producer} is bankrupt! Storage')
-            bankrupt_list.append(producer_list.pop(producer_list.index(producer)))
+            producer.is_bankrupt = True
             continue
         producer.store_billets()
 
     crown.update_balance(market_volume)
-    for producer in producer_list:
-        print(producer.balance, producer.billets_stored)
-    for broker in broker_list:
-        print(broker.balance)
-    for broke in bankrupt_list:
-        print(f'{broke} is bankrupt')
-    print('Crown balance:', crown.balance)
     results = {
         'producers': producer_list,
         'brokers': broker_list,
-        'bankrupts': bankrupt_list,
         'crown_balance': crown.balance
     }
     return results
-
-
-print(market_transactions)
-print(count_turn(producers, brokers, market_transactions))

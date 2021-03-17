@@ -1,26 +1,26 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Session, Player, Producer, Broker
+from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel
 
 
 class SessionSerializer(ModelSerializer):
 	class Meta:
-		model = Session
+		model = SessionModel
 		fields = '__all__'
 
 
 class PlayerSerializer(ModelSerializer):
 	class Meta:
-		model = Player
+		model = PlayerModel
 		fields = '__all__'
 
 
 class ProducerSerializer(ModelSerializer):
 	class Meta:
-		model = Producer
+		model = ProducerModel
 		fields = '__all__'
 
 
 class BrokerSerializer(ModelSerializer):
 	class Meta:
-		model = Broker
+		model = BrokerModel
 		fields = '__all__'

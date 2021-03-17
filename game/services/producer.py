@@ -54,10 +54,12 @@ class ProducerNormal(AbstractProducer):
     #  Хранилища на нормале работают по-другому
 
     def __init__(self, balance):
+        self.id = 0
         self.balance = balance
         self.billets_produced = 0
         self.billets_stored = 0
         self.transactions = []
+        self.is_bankrupt = False
 
     def count_fixed_costs(self) -> float:
         if self.billets_produced <= 10:

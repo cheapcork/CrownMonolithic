@@ -1,7 +1,5 @@
 class AbstractBroker:
 
-    fixed_costs = 1000
-
     material = {
         'spruce': 0.5,
         'oak': 0.7,
@@ -25,9 +23,13 @@ class AbstractBroker:
 
 class BrokerNormal(AbstractBroker):
     def __init__(self, balance):
+        self.id = 0
         self.balance = balance
         self.shipment = 0
         self.transactions = []
+        self.is_bankrupt = False
+
+    fixed_costs = 1000
 
     def add_shipments(self) -> None:
         if self.transactions:

@@ -18,7 +18,7 @@ class CrownNormal:
 
     def initiate_balance(self, broker_starting_balance, number_of_brokers):
         self.balance = broker_starting_balance * number_of_brokers / 4
-        pass
+        return
 
 
 class CrownHard:
