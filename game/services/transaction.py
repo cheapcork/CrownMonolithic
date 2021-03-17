@@ -1,5 +1,5 @@
 class TransactionNormal:
-    def __init__(self, producer: object, broker: object, terms: dict):
+    def __init__(self, producer: int, broker: int, terms: dict):
         self.producer = producer
         self.broker = broker
         self.terms = terms

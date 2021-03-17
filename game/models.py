@@ -108,9 +108,6 @@ class SessionModel(models.Model):
         return self.name
 
 
-SessionModel.objects.first()
-
-
 class PlayerModel(models.Model):
     nickname = models.CharField(max_length=150, verbose_name='Ник пользователя')
     session = models.ForeignKey(SessionModel, on_delete=models.CASCADE, related_name='player', verbose_name='Сессия')

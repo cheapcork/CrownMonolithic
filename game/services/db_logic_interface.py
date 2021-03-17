@@ -38,7 +38,6 @@ def change_game_parameters(session_model, session_id: int):
 		producer.id = db_producer.id
 		producer.billets_produced = db_producer.billets_produced
 		producer.billets_stored = db_producer.billets_stored
-		# В сделках хранятся ссылки на объекты БД, но при этом данные объекты не используются непосредственно
 		for transaction in transactions:
 			if transaction['producer'] == producer.id:
 				producer.make_deal(transaction)
@@ -51,7 +50,7 @@ def change_game_parameters(session_model, session_id: int):
 				broker.make_deal(transaction)
 		brokers.append(broker)
 
-	results = count_turn(producers, brokers, transactions, crown_balance)
+	count_turn(producers, brokers, transactions, crown_balance)
 
 	for producer in producers:
 		for db_producer in db_producers:
@@ -60,6 +59,7 @@ def change_game_parameters(session_model, session_id: int):
 				db_producer.is_bankrupt = producer.is_bankrupt
 				db_producer.billets_stored = producer.billets_stored
 				# FIXME Миша, всё хуйня, давай по-новой
+				#  Гуглить документацию по моделям и их методам, а также по взаимодействию ORM и БД
 				db_producer.save()
 
 	for broker in brokers:
@@ -69,5 +69,5 @@ def change_game_parameters(session_model, session_id: int):
 				db_broker.is_bankrupt = broker.is_bankrupt
 				db_broker.save()
 
-	session_instance.crown_balance = results['crown_balance']
+	return
 
