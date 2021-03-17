@@ -32,11 +32,9 @@ class BrokerNormal(AbstractBroker):
     fixed_costs = 1000
 
     def add_shipments(self) -> None:
-        if self.transactions:
-            for transaction in self.transactions:
-                self.shipment += transaction['terms']['quantity']
+        for transaction in self.transactions:
+            self.shipment += transaction['terms']['quantity']
             return
-        return
 
     def make_deal(self, deal: dict) -> None:
         self.transactions.append(deal)

@@ -18,7 +18,8 @@ def change_game_parameters(session_model, session_id: int):
 			continue
 		db_brokers.append(player.broker.first())
 
-	db_transactions = session_instance.transaction.filter(turn=session_instance.current_turn)
+	# turn = session_instance.current_turn
+	db_transactions = session_instance.transaction.filter()
 
 	producers, brokers, transactions = [], [], []
 
@@ -50,6 +51,10 @@ def change_game_parameters(session_model, session_id: int):
 				broker.make_deal(transaction)
 		brokers.append(broker)
 
+	print(db_producers)
+	print(db_brokers)
+	print(db_transactions)
+
 	count_turn(producers, brokers, transactions, crown_balance)
 
 	for producer in producers:
@@ -57,9 +62,8 @@ def change_game_parameters(session_model, session_id: int):
 			if db_producer.id == producer.id:
 				db_producer.balance = producer.balance
 				db_producer.is_bankrupt = producer.is_bankrupt
+				db_producer.billets_produced = producer.billets_produced
 				db_producer.billets_stored = producer.billets_stored
-				# FIXME Миша, всё хуйня, давай по-новой
-				#  Гуглить документацию по моделям и их методам, а также по взаимодействию ORM и БД
 				db_producer.save()
 
 	for broker in brokers:
@@ -68,6 +72,5 @@ def change_game_parameters(session_model, session_id: int):
 				db_broker.balance = broker.balance
 				db_broker.is_bankrupt = broker.is_bankrupt
 				db_broker.save()
-
 	return
 

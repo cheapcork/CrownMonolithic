@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel
+from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 
 
 class SessionSerializer(ModelSerializer):
@@ -23,4 +23,10 @@ class ProducerSerializer(ModelSerializer):
 class BrokerSerializer(ModelSerializer):
 	class Meta:
 		model = BrokerModel
+		fields = '__all__'
+
+
+class TransactionSerializer(ModelSerializer):
+	class Meta:
+		model = TransactionModel
 		fields = '__all__'

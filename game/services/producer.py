@@ -117,6 +117,7 @@ class ProducerNormal(AbstractProducer):
 
     def store_billets(self) -> None:
         self.billets_stored = self.billets_left
+        self.billets_produced = 0
         return
 
     def produce(self, billet_amount) -> None:

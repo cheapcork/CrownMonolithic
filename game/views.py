@@ -2,10 +2,10 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import mixins, viewsets
 from rest_framework.views import APIView
-from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel
+from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from .serializers import SessionSerializer, PlayerSerializer, ProducerSerializer, BrokerSerializer
-from game.services.db_logic_interface import change_game_parameters
+from .serializers import SessionSerializer, PlayerSerializer, ProducerSerializer, BrokerSerializer, \
+	TransactionSerializer
 
 
 class SessionViewSet(ModelViewSet):
@@ -42,4 +42,10 @@ class ProducerViewSet(ModelViewSet):
 class BrokerViewSet(ModelViewSet):
 	queryset = BrokerModel.objects.all()
 	serializer_class = BrokerSerializer
+	permission_classes = [IsAdminUser]
+
+
+class TransactionViewSet(ModelViewSet):
+	queryset = TransactionModel.objects.all()
+	serializer_class = TransactionSerializer
 	permission_classes = [IsAdminUser]

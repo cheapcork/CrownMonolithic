@@ -46,7 +46,7 @@ class SessionModel(models.Model):
     game_type = models.CharField(max_length=15, choices=GAME_TYPES, default='normal')
     number_of_players = models.CharField(max_length=20, choices=PLAYER_NUMBER_PRESET, default='12-14')
     number_of_brokers = models.PositiveSmallIntegerField(editable=False)
-    crown_balance = models.PositiveSmallIntegerField(editable=False, default=0)
+    crown_balance = models.PositiveSmallIntegerField(default=0, editable=True)
     turn_count = models.PositiveSmallIntegerField()
     status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='created', editable=True)
     broker_starting_balance = models.PositiveSmallIntegerField(editable=False)

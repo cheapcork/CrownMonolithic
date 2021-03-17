@@ -1,7 +1,8 @@
-from .producer import ProducerNormal
-from .broker import BrokerNormal
-from .crown import CrownNormal
-from .transaction import TransactionNormal as Transaction
+from producer import ProducerNormal
+from broker import BrokerNormal
+from transaction import TransactionNormal as Transaction
+from services_normal import count_turn
+from crown import CrownNormal
 basic_balance = 4000
 broker_balance = 8000
 
@@ -93,15 +94,15 @@ terms_10 = {
 }
 
 t1 = Transaction(producer_1.id, broker_1.id, terms_1).form_transaction()
-t2 = Transaction(producer_2, broker_1, terms_2).form_transaction()
-t3 = Transaction(producer_3, broker_1, terms_3).form_transaction()
-t4 = Transaction(producer_4, broker_1, terms_4).form_transaction()
-t5 = Transaction(producer_5, broker_2, terms_5).form_transaction()
-t6 = Transaction(producer_6, broker_2, terms_6).form_transaction()
-t7 = Transaction(producer_7, broker_2, terms_7).form_transaction()
-t8 = Transaction(producer_8, broker_3, terms_8).form_transaction()
-t9 = Transaction(producer_9, broker_3, terms_9).form_transaction()
-t10 = Transaction(producer_10, broker_3, terms_10).form_transaction()
+t2 = Transaction(producer_2.id, broker_1.id, terms_2).form_transaction()
+t3 = Transaction(producer_3.id, broker_1.id, terms_3).form_transaction()
+t4 = Transaction(producer_4.id, broker_1.id, terms_4).form_transaction()
+t5 = Transaction(producer_5.id, broker_2.id, terms_5).form_transaction()
+t6 = Transaction(producer_6.id, broker_2.id, terms_6).form_transaction()
+t7 = Transaction(producer_7.id, broker_2.id, terms_7).form_transaction()
+t8 = Transaction(producer_8.id, broker_3.id, terms_8).form_transaction()
+t9 = Transaction(producer_9.id, broker_3.id, terms_9).form_transaction()
+t10 = Transaction(producer_10.id, broker_3.id, terms_10).form_transaction()
 
 producer_1.make_deal(t1)
 producer_2.make_deal(t2)
@@ -129,3 +130,4 @@ producers = [producer_1, producer_2, producer_3, producer_4, producer_5, produce
 brokers = [broker_1, broker_2, broker_3]
 market_transactions = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]
 
+count_turn(producers, brokers, market_transactions, 6000)

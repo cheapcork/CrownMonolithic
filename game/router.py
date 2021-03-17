@@ -9,4 +9,5 @@ router.register(r'player-admin', views.PlayerViewSet)
 # router.register(r'player', views.GetOrUpdatePlayerViewSet)
 router.register(r'producer', views.ProducerViewSet)
 router.register(r'broker', views.BrokerViewSet)
+router.register(r'transactions', views.TransactionViewSet)
 
