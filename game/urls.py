@@ -1,6 +1,7 @@
 from django.urls import path, include
 from django.contrib import admin
 from .router import router
+from . import views
 
 # Роуты для внутриигрового взаимодействия:
 #  - Главный экран игры
@@ -13,4 +14,6 @@ urlpatterns = [
 	# path('map/'),
 	# path('negotiation/'),
 	# path('trade/'),
+	path('join/<session_pk>/', views.join_session_view),
+	path('count-turn/<pk>/', views.count_turn_view)
 ]

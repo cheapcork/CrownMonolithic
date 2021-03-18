@@ -9,17 +9,12 @@ def change_game_parameters(session_model, session_id: int):
 	Интерфейс, который использует функцию пересчёта хода :count_turn: для изменения полей таблиц в БД.
 	"""
 	session_instance = session_model.objects.get(id=session_id)
-	players_queryset = session_instance.player.all()
+	producers_queryset = session_instance.producer.all()
+	brokers_queryset = session_instance.broker.all()
 	db_producers, db_brokers = [], []
 
-	for player in players_queryset:
-		if player.producer.first() is not None:
-			db_producers.append(player.producer.first())
-			continue
-		db_brokers.append(player.broker.first())
-
-	# turn = session_instance.current_turn
-	db_transactions = session_instance.transaction.filter()
+	# FIXME Почему это не достаёт все транзакции за текущий ход?
+	db_transactions = session_instance.transaction.filter(turn=session_instance.current_turn)
 
 	producers, brokers, transactions = [], [], []
 
@@ -34,7 +29,7 @@ def change_game_parameters(session_model, session_id: int):
 		deal = Transaction(transaction.producer.id, transaction.broker.id, terms).form_transaction()
 		transactions.append(deal)
 
-	for db_producer in db_producers:
+	for db_producer in producers_queryset:
 		producer = ProducerNormal(db_producer.balance)
 		producer.id = db_producer.id
 		producer.billets_produced = db_producer.billets_produced
@@ -44,7 +39,7 @@ def change_game_parameters(session_model, session_id: int):
 				producer.make_deal(transaction)
 		producers.append(producer)
 
-	for db_broker in db_brokers:
+	for db_broker in brokers_queryset:
 		broker = BrokerNormal(db_broker.balance)
 		broker.id = db_broker.id
 		for transaction in transactions:
@@ -56,7 +51,7 @@ def change_game_parameters(session_model, session_id: int):
 	print(db_brokers)
 	print(db_transactions)
 
-	count_turn(producers, brokers, transactions, crown_balance)
+	crown_balance_updated = count_turn(producers, brokers, transactions, crown_balance)
 
 	for producer in producers:
 		for db_producer in db_producers:
@@ -73,5 +68,6 @@ def change_game_parameters(session_model, session_id: int):
 				db_broker.balance = broker.balance
 				db_broker.is_bankrupt = broker.is_bankrupt
 				db_broker.save()
-	return
+
+	return crown_balance_updated
 
