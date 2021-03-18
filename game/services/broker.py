@@ -34,7 +34,7 @@ class BrokerNormal(AbstractBroker):
     def add_shipments(self) -> None:
         for transaction in self.transactions:
             self.shipment += transaction['terms']['quantity']
-            return
+        return
 
     def make_deal(self, deal: dict) -> None:
         self.transactions.append(deal)

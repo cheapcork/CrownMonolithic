@@ -46,6 +46,7 @@ def change_game_parameters(session_model, session_id: int):
 
 	for db_broker in db_brokers:
 		broker = BrokerNormal(db_broker.balance)
+		broker.id = db_broker.id
 		for transaction in transactions:
 			if transaction['broker'] == broker.id:
 				broker.make_deal(transaction)

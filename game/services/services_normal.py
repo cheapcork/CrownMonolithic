@@ -5,7 +5,11 @@ from .crown import CrownNormal
 #  сделок с производителями в порядке их перечисления. Как это должно выглядеть на самом деле?
 
 
-def count_turn(producer_list: list, broker_list: list, transaction_list: list, crown_balance: float) -> dict:
+def count_turn(producer_list: list, broker_list: list, transaction_list: list, crown_balance: float) -> None:
+    """
+    Принимает на вход массивы объектов производителей и маклеров.
+    Изменяет свойства объектов, полученных на входе.
+    """
     crown = CrownNormal()
     crown.balance = crown_balance
     market_volume = 0
@@ -46,16 +50,17 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
         if broker.balance < 0:
             broker.balance = 0
             broker.is_bankrupt = True
+        broker.add_shipments()
 
     # Расчёт прибыли
     for producer in producer_list:
         if producer.is_bankrupt:
             continue
         producer.balance += producer.count_proceeds()
+
     for broker in broker_list:
         if broker.is_bankrupt:
             continue
-        broker.add_shipments()
         broker.balance += broker.count_proceeds(market_price)
 
     # Расчёт расходов на хранение и отправка на хранение заготовок

@@ -49,9 +49,6 @@ class AbstractProducer:
 
 
 class ProducerNormal(AbstractProducer):
-    # TODO Переопределить метод __init__ для нормала
-    #  Скомпоновать методы по нормалу и харду, изначально задать их как абстрактные методы
-    #  Хранилища на нормале работают по-другому
 
     def __init__(self, balance):
         self.id = 0

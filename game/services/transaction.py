@@ -7,7 +7,7 @@ class TransactionNormal:
     transaction_limit = 2000
 
     def approve_by_limit(self) -> bool:
-        return self.terms['quantity'] * self.terms['price'] < self.transaction_limit
+        return self.terms['quantity'] * self.terms['price'] <= self.transaction_limit
 
     def form_transaction(self) -> dict:
         if self.approve_by_limit():
