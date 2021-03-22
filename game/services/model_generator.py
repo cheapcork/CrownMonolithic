@@ -1,6 +1,5 @@
 from .. import models
 import random
-import copy
 
 
 def city_generator(players_amount, brokers_amount):
@@ -31,10 +30,10 @@ def create_role_models(session_model, session_id):
 			models.ProducerModel.objects.create(
 				player=player,
 				city=next(city),
-			)
+			).save()
 		else:
 			models.BrokerModel.objects.create(
 				player=player,
 				city=next(city),
-			)
+			).save()
 	del city
