@@ -9,19 +9,16 @@ def change_game_parameters(session_model, session_id: int):
 	Интерфейс, который использует функцию пересчёта хода :count_turn: для изменения полей таблиц в БД.
 	"""
 	session_instance = session_model.objects.get(id=session_id)
-	players_queryset = session_instance.player.all()
 
-	db_producer_players, db_broker_players = [], []
-	for player in players_queryset:
-		if player.role == 'producer':
-			db_producer_players.append(player)
-		elif player.role == 'broker':
-			db_broker_players.append(player)
+	players_queryset = session_instance.player.all()
+	db_producers_queryset = players_queryset.filter(role='producer')
+	db_broker_queryset = players_queryset.filter(role='broker')
+	print('DB-L: ', players_queryset)
 
 	db_producers, db_brokers = [], []
-	for player in db_producer_players:
+	for player in db_producers_queryset:
 		db_producers.append(player.producer.first())
-	for player in db_broker_players:
+	for player in db_broker_queryset:
 		db_brokers.append(player.broker.first())
 
 	db_transactions = session_instance.transaction.filter(turn=session_instance.current_turn)
