@@ -2,6 +2,7 @@ from .. import models
 import random
 import copy
 
+
 def player_role_models_create(session_model, session_id):
 	def city_generator(players_amount, brokers_amount):
 		local_players_amount = copy.copy(players_amount)
