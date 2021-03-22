@@ -99,17 +99,16 @@ class SessionModel(models.Model):
             self.initialize_game_settings()
         if self.status == 'created':
             self.status = 'started'
-            # FIXME Не работает распределение ролей при старте игры
             distribute_roles(SessionModel, self.id)
             self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
+            self.current_turn = 1
             super().save(*args, **kwargs)
         if self.status == 'started':
-            self.crown_balance = change_game_parameters(SessionModel, self.id)
-            if self.current_turn < self.turn_count:
+            if 1 < self.current_turn < self.turn_count:
+                self.crown_balance = change_game_parameters(SessionModel, self.id)
                 self.current_turn += 1
-            else:
+            if self.current_turn == self.turn_count:
                 self.status = 'finished'
-                # TODO Сюда вставить алгоритм назначения мест игроков в сессии
             super().save(*args, **kwargs)
         if self.status == 'finished':
             super().save(*args, **kwargs)
