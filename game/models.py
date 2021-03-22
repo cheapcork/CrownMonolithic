@@ -1,7 +1,7 @@
 from django.db import models
 from game.services.db_logic_interface import change_game_parameters
 from game.services.role_randomizer import distribute_roles
-from game.services.model_generator import create_role_models
+from game.services.create_role_models import create_role_models
 from authorization.models import UserModel
 
 ROLES = (
