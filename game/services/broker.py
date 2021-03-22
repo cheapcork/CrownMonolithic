@@ -28,6 +28,7 @@ class BrokerNormal(AbstractBroker):
         self.shipment = 0
         self.transactions = []
         self.is_bankrupt = False
+        self.status = 'OK'
 
     fixed_costs = 1000
 

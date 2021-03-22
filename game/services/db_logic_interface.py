@@ -13,7 +13,6 @@ def change_game_parameters(session_model, session_id: int):
 	players_queryset = session_instance.player.all()
 	db_producers_queryset = players_queryset.filter(role='producer')
 	db_broker_queryset = players_queryset.filter(role='broker')
-	print('DB-L: ', players_queryset)
 
 	db_producers, db_brokers = [], []
 	for player in db_producers_queryset:
@@ -63,6 +62,7 @@ def change_game_parameters(session_model, session_id: int):
 				db_producer.is_bankrupt = producer.is_bankrupt
 				db_producer.billets_produced = producer.billets_produced
 				db_producer.billets_stored = producer.billets_stored
+				db_producer.status = producer.status
 				db_producer.save()
 
 	for broker in brokers:
@@ -70,6 +70,7 @@ def change_game_parameters(session_model, session_id: int):
 			if db_broker.id == broker.id:
 				db_broker.balance = broker.balance
 				db_broker.is_bankrupt = broker.is_bankrupt
+				db_broker.status = broker.status
 				db_broker.save()
 
 	return crown_balance_updated
