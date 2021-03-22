@@ -15,6 +15,7 @@ GAME_TYPES = (
 )
 
 SESSION_STATUSES = (
+    ('initialized', 'Сессия инициализирована'),
     ('created', 'Сессия создана'),
     ('started', 'Сессия заполнена'),
     ('finished', 'Сессия закончилась')
@@ -50,7 +51,7 @@ class SessionModel(models.Model):
 
     number_of_brokers = models.PositiveSmallIntegerField(editable=False)
     crown_balance = models.PositiveSmallIntegerField(default=0, editable=False)
-    status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='created', editable=True)
+    status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='initialized', editable=True)
     broker_starting_balance = models.PositiveSmallIntegerField(editable=False)
     producer_starting_balance = models.PositiveSmallIntegerField(editable=False)
     transaction_limit = models.PositiveSmallIntegerField(default=2000, editable=False)
@@ -98,6 +99,9 @@ class SessionModel(models.Model):
         if not self.pk:
             self.initialize_game_settings()
             super(SessionModel, self).save(*args, **kwargs)
+        if self.status == 'initialized':
+            self.status = 'created'
+            super(SessionModel, self.save(*args, **kwargs))
         if self.status == 'created':
             self.status = 'started'
             distribute_roles(SessionModel, self.id)
