@@ -28,18 +28,15 @@ PLAYER_NUMBER_PRESET = (
     ('31-35', '31-35 Игроков'),
 )
 
+# TODO Поставить ограничение на количество вариантов для выбора в зависимости от числа маклеров в игре
 CITIES = (
     ('unassigned', 'Не назначен'),
-    ('NF', "Неверфол"),
-    ('TT', "Тортуга"),
-    ('WS', "Вемшир"),
     ('IV', "Айво"),
+    ('WS', "Вемшир"),
+    ('TT', "Тортуга"),
     ('AD', "Алендор"),
+    ('NF', "Неверфол"),
     ('ET', "Этруа"),)
-
-DISTANCES = (
-
-)
 
 
 class SessionModel(models.Model):
@@ -53,7 +50,7 @@ class SessionModel(models.Model):
 
     number_of_brokers = models.PositiveSmallIntegerField(editable=False)
     crown_balance = models.PositiveSmallIntegerField(default=0, editable=False)
-    status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='created', editable=False)
+    status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='created', editable=True)
     broker_starting_balance = models.PositiveSmallIntegerField(editable=False)
     producer_starting_balance = models.PositiveSmallIntegerField(editable=False)
     transaction_limit = models.PositiveSmallIntegerField(default=2000, editable=False)
@@ -63,38 +60,41 @@ class SessionModel(models.Model):
         verbose_name = 'Сессия'
         verbose_name_plural = 'Сессии'
 
-    def save(self, *args, **kwargs):
-        # Настройка начальных параметров сессии в зависимости от количества игроков
-        if not self.pk:
-            if self.game_type == 'normal':
-                if self.number_of_players == '12-14':
-                    if not self.number_of_brokers:
-                        self.number_of_brokers = 3
-                    self.broker_starting_balance = 8000
-                    self.producer_starting_balance = 4000
-                elif self.number_of_players == "15-20":
-                    if not self.number_of_brokers:
-                        self.number_of_brokers = 4
-                    self.broker_starting_balance = 12000
-                    self.producer_starting_balance = 6000
-                elif self.number_of_players == "21-25":
-                    if not self.number_of_brokers:
-                        self.number_of_brokers = 5
-                    self.broker_starting_balance = 12000
-                    self.producer_starting_balance = 6000
-                elif self.number_of_players == "26-30":
-                    if not self.number_of_brokers:
-                        self.number_of_brokers = 6
-                    self.broker_starting_balance = 12000
-                    self.producer_starting_balance = 6000
-                elif self.number_of_players == "31-35":
-                    if not self.number_of_brokers:
-                        self.number_of_brokers = 7
-                    self.broker_starting_balance = 12000
-                    self.producer_starting_balance = 6000
-            elif self.game_type == 'hard':
+    def initialize_game_settings(self):
+
+        if self.game_type == 'normal':
+            if self.number_of_players == '12-14':
+                if not self.number_of_brokers:
+                    self.number_of_brokers = 3
+                self.broker_starting_balance = 8000
+                self.producer_starting_balance = 4000
+            elif self.number_of_players == "15-20":
+                if not self.number_of_brokers:
+                    self.number_of_brokers = 4
                 self.broker_starting_balance = 12000
                 self.producer_starting_balance = 6000
+            elif self.number_of_players == "21-25":
+                if not self.number_of_brokers:
+                    self.number_of_brokers = 5
+                self.broker_starting_balance = 12000
+                self.producer_starting_balance = 6000
+            elif self.number_of_players == "26-30":
+                if not self.number_of_brokers:
+                    self.number_of_brokers = 6
+                self.broker_starting_balance = 12000
+                self.producer_starting_balance = 6000
+            elif self.number_of_players == "31-35":
+                if not self.number_of_brokers:
+                    self.number_of_brokers = 7
+                self.broker_starting_balance = 12000
+                self.producer_starting_balance = 6000
+        elif self.game_type == 'hard':
+            self.broker_starting_balance = 12000
+            self.producer_starting_balance = 6000
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.initialize_game_settings()
         if self.status == 'created':
             self.status = 'started'
             # FIXME Не работает распределение ролей при старте игры
@@ -119,6 +119,8 @@ class SessionModel(models.Model):
 class PlayerModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, related_name='player', verbose_name='Пользователь',
                              null=True)
+    session = models.ForeignKey(SessionModel, on_delete=models.SET_NULL, related_name='player', verbose_name='Сессия',
+                                null=True, blank=True)
     nickname = models.CharField(max_length=100, verbose_name='Никнейм', default='')
 
     role = models.CharField(max_length=20, choices=ROLES, verbose_name='Игровая роль', default='unassigned',
@@ -135,8 +137,6 @@ class PlayerModel(models.Model):
 
 class ProducerModel(models.Model):
     player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='producer', null=True, blank=True)
-    session = models.ForeignKey(SessionModel, on_delete=models.SET_NULL, related_name='producer', verbose_name='Сессия',
-                                null=True, blank=True)
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
     balance = models.PositiveIntegerField(default=0)
     billets_produced = models.PositiveIntegerField(default=0)
@@ -155,14 +155,12 @@ class ProducerModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.balance = self.session.producer_starting_balance
+            self.balance = self.player.session.producer_starting_balance
         super().save(*args, **kwargs)
 
 
 class BrokerModel(models.Model):
     player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='broker', null=True, blank=True)
-    session = models.ForeignKey(SessionModel, on_delete=models.SET_NULL, related_name='broker', verbose_name='Сессия',
-                                null=True, blank=True)
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
     balance = models.PositiveIntegerField(default=0)
     is_bankrupt = models.BooleanField(default=False)
@@ -179,7 +177,7 @@ class BrokerModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.balance = self.session.broker_starting_balance
+            self.balance = self.player.session.broker_starting_balance
         super().save(*args, **kwargs)
 
 
@@ -197,8 +195,11 @@ class TransactionModel(models.Model):
         verbose_name_plural = 'Транзакции'
 
     def __str__(self):
-        return f'Сделка в сессии {self.session.name} между {self.producer.player.nickname} ' \
+        if self.producer.player is not None and self.broker.player is not None:
+            return f'Сделка в сессии {self.session.name} между {self.producer.player.nickname} ' \
                f'и {self.broker.player.nickname}'
+        else:
+            return f'Сделка в сессии {self.session.name} между id {self.producer.id} и id {self.broker.id}'
 
     def save(self, *args, **kwargs):
         if not self.pk:

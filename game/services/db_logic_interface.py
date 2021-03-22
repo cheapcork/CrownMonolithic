@@ -4,17 +4,39 @@ from game.services.broker import BrokerNormal
 from game.services.transaction import TransactionNormal as Transaction
 
 
+def sort_players(players) -> dict:
+	producers, brokers = [], []
+	for player in players:
+		if player.role == 'producer':
+			producers.append(player.producer)
+		elif player.role == 'broker':
+			brokers.append(player.broker)
+	sorted_players = {
+		'producers': producers,
+		'brokers': brokers
+	}
+	return sorted_players
+
+
 def change_game_parameters(session_model, session_id: int):
 	"""
 	Интерфейс, который использует функцию пересчёта хода :count_turn: для изменения полей таблиц в БД.
 	"""
 	session_instance = session_model.objects.get(id=session_id)
-	producers_queryset = session_instance.producer.all()
-	brokers_queryset = session_instance.broker.all()
+	players_queryset = session_instance.player.all()
 	db_producers, db_brokers = [], []
+	for player in players_queryset:
+		if player.role == 'producer':
+			db_producers.append(player)
+		elif player.role == 'broker':
+			db_brokers.append(player)
+
+	print(db_producers)
+	print(db_brokers)
 
 	# FIXME Почему это не достаёт все транзакции за текущий ход?
 	db_transactions = session_instance.transaction.filter(turn=session_instance.current_turn)
+	print(db_transactions)
 
 	producers, brokers, transactions = [], [], []
 
@@ -29,7 +51,7 @@ def change_game_parameters(session_model, session_id: int):
 		deal = Transaction(transaction.producer.id, transaction.broker.id, terms).form_transaction()
 		transactions.append(deal)
 
-	for db_producer in producers_queryset:
+	for db_producer in db_producers:
 		producer = ProducerNormal(db_producer.balance)
 		producer.id = db_producer.id
 		producer.billets_produced = db_producer.billets_produced
@@ -39,7 +61,7 @@ def change_game_parameters(session_model, session_id: int):
 				producer.make_deal(transaction)
 		producers.append(producer)
 
-	for db_broker in brokers_queryset:
+	for db_broker in db_brokers:
 		broker = BrokerNormal(db_broker.balance)
 		broker.id = db_broker.id
 		for transaction in transactions:
