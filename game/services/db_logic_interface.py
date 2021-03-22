@@ -4,39 +4,27 @@ from game.services.broker import BrokerNormal
 from game.services.transaction import TransactionNormal as Transaction
 
 
-def sort_players(players) -> dict:
-	producers, brokers = [], []
-	for player in players:
-		if player.role == 'producer':
-			producers.append(player.producer)
-		elif player.role == 'broker':
-			brokers.append(player.broker)
-	sorted_players = {
-		'producers': producers,
-		'brokers': brokers
-	}
-	return sorted_players
-
-
 def change_game_parameters(session_model, session_id: int):
 	"""
 	Интерфейс, который использует функцию пересчёта хода :count_turn: для изменения полей таблиц в БД.
 	"""
 	session_instance = session_model.objects.get(id=session_id)
 	players_queryset = session_instance.player.all()
-	db_producers, db_brokers = [], []
+
+	db_producer_players, db_broker_players = [], []
 	for player in players_queryset:
 		if player.role == 'producer':
-			db_producers.append(player)
+			db_producer_players.append(player)
 		elif player.role == 'broker':
-			db_brokers.append(player)
+			db_broker_players.append(player)
 
-	print(db_producers)
-	print(db_brokers)
+	db_producers, db_brokers = [], []
+	for player in db_producer_players:
+		db_producers.append(player.producer.first())
+	for player in db_broker_players:
+		db_brokers.append(player.broker.first())
 
-	# FIXME Почему это не достаёт все транзакции за текущий ход?
 	db_transactions = session_instance.transaction.filter(turn=session_instance.current_turn)
-	print(db_transactions)
 
 	producers, brokers, transactions = [], [], []
 
@@ -68,10 +56,6 @@ def change_game_parameters(session_model, session_id: int):
 			if transaction['broker'] == broker.id:
 				broker.make_deal(transaction)
 		brokers.append(broker)
-
-	print(db_producers)
-	print(db_brokers)
-	print(db_transactions)
 
 	crown_balance_updated = count_turn(producers, brokers, transactions, crown_balance)
 

@@ -61,7 +61,9 @@ class SessionModel(models.Model):
         verbose_name_plural = 'Сессии'
 
     def initialize_game_settings(self):
-
+        """
+        Инициализирует игровые настройки
+        """
         if self.game_type == 'normal':
             if self.number_of_players == '12-14':
                 if not self.number_of_brokers:
@@ -157,6 +159,9 @@ class ProducerModel(models.Model):
         if not self.pk:
             self.balance = self.player.session.producer_starting_balance
         super().save(*args, **kwargs)
+
+
+ProducerModel.objects.all().exclude()
 
 
 class BrokerModel(models.Model):
