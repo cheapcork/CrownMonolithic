@@ -6,11 +6,11 @@ import copy
 def city_generator(players_amount, brokers_amount):
 	local_players_amount = copy.copy(players_amount)
 	cities = [
-		'NF',
-		'TT',
-		'WS',
 		'IV',
+		'WS',
+		'TT',
 		'AD',
+		'NF',
 		'ET',
 	]
 	cities_for_iter = cities[:brokers_amount]
