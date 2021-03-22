@@ -1,6 +1,7 @@
 from django.db import models
 from game.services.db_logic_interface import change_game_parameters
 from game.services.role_randomizer import distribute_roles
+from game.services.get_transporting_cost import get_transporting_cost
 from authorization.models import UserModel
 
 ROLES = (
@@ -213,4 +214,9 @@ class TransactionModel(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.turn = self.session.current_turn
+            self.transporting_cost = get_transporting_cost(
+                self.session.number_of_brokers,
+                self.producer.city,
+                self.broker.city,
+            )
         super().save(*args, **kwargs)
