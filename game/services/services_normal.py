@@ -24,6 +24,7 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
         producer.balance -= producer.count_fixed_costs()
         if producer.balance < 0:
             producer.balance = 0
+            producer.status = 'FIXED'
             producer.is_bankrupt = True
     for broker in broker_list:
         if broker.is_bankrupt:
@@ -31,6 +32,7 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
         broker.balance -= broker.fixed_costs
         if broker.balance < 0:
             broker.balance = 0
+            broker.status = 'FIXED'
             broker.is_bankrupt = True
 
     # Пересчёт переменных затрат
@@ -42,6 +44,7 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
         producer.balance -= variable_costs_summarized
         if producer.balance < 0:
             producer.balance = 0
+            producer.status = 'VARIABLE'
             producer.is_bankrupt = True
 
     for broker in broker_list:
@@ -50,6 +53,7 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
         broker.balance -= broker.count_purchase_costs()
         if broker.balance < 0:
             broker.balance = 0
+            broker.status = 'VARIABLE'
             broker.is_bankrupt = True
         broker.add_shipments()
 
@@ -71,6 +75,7 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
         producer.balance -= producer.count_storage_costs()
         if producer.balance < 0:
             producer.balance = 0
+            producer.status = 'STORAGE'
             producer.is_bankrupt = True
             continue
         producer.store_billets()

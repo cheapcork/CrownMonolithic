@@ -2,6 +2,7 @@ from django.db import models
 from game.services.db_logic_interface import change_game_parameters
 from game.services.role_randomizer import distribute_roles
 from game.services.get_transporting_cost import get_transporting_cost
+from game.services.create_role_models import create_role_models
 from authorization.models import UserModel
 
 ROLES = (
@@ -30,7 +31,6 @@ PLAYER_NUMBER_PRESET = (
     ('31-35', '31-35 Игроков'),
 )
 
-# TODO Поставить ограничение на количество вариантов для выбора в зависимости от числа маклеров в игре
 CITIES = (
     ('unassigned', 'Не назначен'),
     ('IV', "Айво"),
@@ -101,11 +101,11 @@ class SessionModel(models.Model):
             self.initialize_game_settings()
             super(SessionModel, self).save(*args, **kwargs)
         if self.status == 'initialized':
+            distribute_roles(SessionModel, self.id)
+            create_role_models(SessionModel, self.pk)
             self.status = 'created'
             super(SessionModel, self.save(*args, **kwargs))
         if self.status == 'created':
-            self.status = 'started'
-            distribute_roles(SessionModel, self.id)
             self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
             self.current_turn = 1
             super().save(*args, **kwargs)
@@ -149,6 +149,7 @@ class ProducerModel(models.Model):
     billets_produced = models.PositiveIntegerField(default=0)
     billets_stored = models.PositiveIntegerField(default=0)
     is_bankrupt = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
 
     class Meta:
         verbose_name = 'Производитель'
@@ -174,6 +175,7 @@ class BrokerModel(models.Model):
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
     balance = models.PositiveIntegerField(default=0)
     is_bankrupt = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
 
     class Meta:
         verbose_name = 'Маклер'

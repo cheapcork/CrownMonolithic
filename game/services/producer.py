@@ -57,6 +57,7 @@ class ProducerNormal(AbstractProducer):
         self.billets_stored = 0
         self.transactions = []
         self.is_bankrupt = False
+        self.status = 'OK'
 
     def count_fixed_costs(self) -> float:
         if self.billets_produced <= 10:
