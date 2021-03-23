@@ -145,9 +145,9 @@ class PlayerModel(models.Model):
 class ProducerModel(models.Model):
     player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='producer', null=True, blank=True)
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
-    balance = models.PositiveIntegerField(default=0)
-    billets_produced = models.PositiveIntegerField(default=0)
-    billets_stored = models.PositiveIntegerField(default=0)
+    balance = models.IntegerField(default=0)
+    billets_produced = models.IntegerField(default=0)
+    billets_stored = models.IntegerField(default=0)
     is_bankrupt = models.BooleanField(default=False)
     status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
 
@@ -173,7 +173,7 @@ ProducerModel.objects.all().exclude()
 class BrokerModel(models.Model):
     player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='broker', null=True, blank=True)
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
-    balance = models.PositiveIntegerField(default=0)
+    balance = models.IntegerField(default=0)
     is_bankrupt = models.BooleanField(default=False)
     status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
 

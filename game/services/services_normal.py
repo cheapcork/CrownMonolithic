@@ -17,13 +17,13 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
     for transaction in transaction_list:
         market_volume += transaction['terms']['quantity']
     market_price = crown.count_market_price(market_volume)
+
     # Пересчёт постоянных затрат
     for producer in producer_list:
         if producer.is_bankrupt:
             continue
         producer.balance -= producer.count_fixed_costs()
         if producer.balance < 0:
-            producer.balance = 0
             producer.status = 'FIXED'
             producer.is_bankrupt = True
     for broker in broker_list:
@@ -31,7 +31,6 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
             continue
         broker.balance -= broker.fixed_costs
         if broker.balance < 0:
-            broker.balance = 0
             broker.status = 'FIXED'
             broker.is_bankrupt = True
 
@@ -43,7 +42,6 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
                                     + producer.count_logistics_costs()
         producer.balance -= variable_costs_summarized
         if producer.balance < 0:
-            producer.balance = 0
             producer.status = 'VARIABLE'
             producer.is_bankrupt = True
 
@@ -52,7 +50,6 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
             continue
         broker.balance -= broker.count_purchase_costs()
         if broker.balance < 0:
-            broker.balance = 0
             broker.status = 'VARIABLE'
             broker.is_bankrupt = True
         broker.add_shipments()
@@ -74,16 +71,14 @@ def count_turn(producer_list: list, broker_list: list, transaction_list: list, c
             continue
         producer.balance -= producer.count_storage_costs()
         if producer.balance < 0:
-            producer.balance = 0
             producer.status = 'STORAGE'
             producer.is_bankrupt = True
             continue
         producer.store_billets()
+        if producer.billets_stored < 0:
+            producer.status = 'UNTRUSTED'
+            producer.is_bankrupt = True
 
     crown.update_balance(market_volume)
-    for producer in producer_list:
-        print(producer, producer.balance, producer.billets_stored, producer.is_bankrupt)
-    for broker in broker_list:
-        print(broker, broker.balance, broker.is_bankrupt)
 
     return crown.balance

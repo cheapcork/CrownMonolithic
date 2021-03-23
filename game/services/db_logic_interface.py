@@ -4,6 +4,36 @@ from game.services.broker import BrokerNormal
 from game.services.transaction import TransactionNormal as Transaction
 
 
+def generate_producer(db_producer_model_instance, producer_class):
+	producer = producer_class(db_producer_model_instance.balance)
+	producer.id = db_producer_model_instance.id
+	producer.billets_produced = db_producer_model_instance.billets_produced
+	producer.billets_stored = db_producer_model_instance.billets_stored
+	return producer
+
+
+def generate_broker(db_broker_model_instance, broker_class):
+	broker = broker_class(db_broker_model_instance.balance)
+	broker.id = db_broker_model_instance.id
+	return broker
+
+
+def save_producer(producer_class_instance, db_producer_model_instance):
+	db_producer_model_instance.balance = producer_class_instance.balance
+	db_producer_model_instance.is_bankrupt = producer_class_instance.is_bankrupt
+	db_producer_model_instance.billets_produced = producer_class_instance.billets_produced
+	db_producer_model_instance.billets_stored = producer_class_instance.billets_stored
+	db_producer_model_instance.status = producer_class_instance.status
+	db_producer_model_instance.save()
+
+
+def save_broker(broker_class_instance, db_broker_model_instance):
+	db_broker_model_instance.balance = broker_class_instance.balance
+	db_broker_model_instance.is_bankrupt = broker_class_instance.is_bankrupt
+	db_broker_model_instance.status = broker_class_instance.status
+	db_broker_model_instance.save()
+
+
 def change_game_parameters(session_model, session_id: int):
 	"""
 	Интерфейс, который использует функцию пересчёта хода :count_turn: для изменения полей таблиц в БД.
@@ -36,18 +66,14 @@ def change_game_parameters(session_model, session_id: int):
 		transactions.append(deal)
 
 	for db_producer in db_producers:
-		producer = ProducerNormal(db_producer.balance)
-		producer.id = db_producer.id
-		producer.billets_produced = db_producer.billets_produced
-		producer.billets_stored = db_producer.billets_stored
+		producer = generate_producer(db_producer, ProducerNormal)
 		for transaction in transactions:
 			if transaction['producer'] == producer.id:
 				producer.make_deal(transaction)
 		producers.append(producer)
 
 	for db_broker in db_brokers:
-		broker = BrokerNormal(db_broker.balance)
-		broker.id = db_broker.id
+		broker = generate_broker(db_broker, BrokerNormal)
 		for transaction in transactions:
 			if transaction['broker'] == broker.id:
 				broker.make_deal(transaction)
@@ -58,20 +84,12 @@ def change_game_parameters(session_model, session_id: int):
 	for producer in producers:
 		for db_producer in db_producers:
 			if db_producer.id == producer.id:
-				db_producer.balance = producer.balance
-				db_producer.is_bankrupt = producer.is_bankrupt
-				db_producer.billets_produced = producer.billets_produced
-				db_producer.billets_stored = producer.billets_stored
-				db_producer.status = producer.status
-				db_producer.save()
+				save_producer(producer, db_producer)
 
 	for broker in brokers:
 		for db_broker in db_brokers:
 			if db_broker.id == broker.id:
-				db_broker.balance = broker.balance
-				db_broker.is_bankrupt = broker.is_bankrupt
-				db_broker.status = broker.status
-				db_broker.save()
+				save_broker(broker, db_broker)
 
 	return crown_balance_updated
 
