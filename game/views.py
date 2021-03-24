@@ -103,7 +103,6 @@ def leave_session_view(request, session_pk):
 	if not session_instance.player.filter(user=request.user.id).exists():
 		return Response({
 			'error': 'You\'re not in this session!',
-			'players': PlayerSerializer(session_instance.player, many=True).data,
 		}, status=status.HTTP_400_BAD_REQUEST)
 
 	try:
