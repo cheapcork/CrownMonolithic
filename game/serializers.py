@@ -9,10 +9,11 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 
 class SessionSerializer(serializers.ModelSerializer):
-	player = PlayerSerializer(many=True)
+	player = PlayerSerializer(many=True, read_only=True)
 	class Meta:
 		model = SessionModel
 		fields = [
+			'id',
 			'name',
 			'game_type',
 			'number_of_players',
@@ -27,6 +28,7 @@ class SessionSerializer(serializers.ModelSerializer):
 			'player',
 		]
 		read_only = [
+			'id',
 			'game_type',
 			'number_of_brokers',
 			'player',
