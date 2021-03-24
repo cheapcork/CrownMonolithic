@@ -60,10 +60,46 @@ def count_turn_view(request, pk):
 		return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 @renderer_classes([JSONRenderer])
 @permission_classes([IsAuthenticated])
-def join_session_view(request, player_pk, session_pk):
-	player_instance = get_object_or_404(PlayerModel, pk=player_pk)
+def join_session_view(request, session_pk):
+	session_instance = get_object_or_404(SessionModel, pk=session_pk)
+	if session_instance.player.filter(user=request.user.id).exists():
+		return Response({
+			'error': 'You\'ve already joined this session!',
+			'players': PlayerSerializer(session_instance.player, many=True).data,
+		}, status=status.HTTP_400_BAD_REQUEST)
 
+	player_serialized = PlayerSerializer(data={
+		'nickname': request.user.username,
+		'user': request.user.id,
+		'session': session_instance.id,
+	})
+
+	if not player_serialized.is_valid():
+		return Response(player_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+	player_serialized.save()
+
+	return Response(PlayerSerializer(session_instance.player, many=True).data, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@renderer_classes([JSONRenderer])
+@permission_classes([IsAuthenticated])
+def leave_session_view(request, session_pk):
+	session_instance = get_object_or_404(SessionModel, pk=session_pk)
+	if not session_instance.player.filter(user=request.user.id).exists():
+		return Response({
+			'error': 'You\'re not in this session!',
+			'players': PlayerSerializer(session_instance.player, many=True).data,
+		}, status=status.HTTP_400_BAD_REQUEST)
+
+	try:
+		session_instance.player.get(user=request.user.id).delete()
+	except Exception as e:
+		# TODO: Exception handler
+		print(e)
+		return Response({'error': e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	return Response(status=status.HTTP_204_NO_CONTENT)
 
