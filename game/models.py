@@ -3,7 +3,7 @@ from game.services.db_logic_interface import change_game_parameters
 from game.services.role_randomizer import distribute_roles
 from game.services.get_transporting_cost import get_transporting_cost
 from game.services.create_role_models import create_role_models
-from authorization.models import UserModel
+from django.contrib.auth.models import User as UserModel
 
 ROLES = (
     ('unassigned', 'Не назначена'),
@@ -100,12 +100,9 @@ class SessionModel(models.Model):
         if not self.pk:
             self.initialize_game_settings()
             super(SessionModel, self).save(*args, **kwargs)
-        if self.status == 'initialized':
+        if self.status == 'created':
             distribute_roles(SessionModel, self.id)
             create_role_models(SessionModel, self.pk)
-            self.status = 'created'
-            super(SessionModel, self.save(*args, **kwargs))
-        if self.status == 'created':
             self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
             self.current_turn = 1
             super().save(*args, **kwargs)

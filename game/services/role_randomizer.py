@@ -19,8 +19,10 @@ def distribute_roles(session_model, session_id):
 		player_models_list.remove(producer)
 
 	number_of_brokers_to_distribute = session_instance.number_of_brokers - preassigned_brokers.count()
-
-	broker_players_sample = random.sample(player_models_list, number_of_brokers_to_distribute)
+	try:
+		broker_players_sample = random.sample(player_models_list, number_of_brokers_to_distribute)
+	except ValueError:
+		raise Exception('Not enough players')
 
 	for player in players_queryset:
 		for broker_player in broker_players_sample:
