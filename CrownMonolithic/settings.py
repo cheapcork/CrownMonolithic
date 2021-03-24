@@ -26,7 +26,7 @@ SECRET_KEY = 'a#4@6kj%73+r483o#vb#4@)slmh8io(kl=wy(ua4#wls3zsmcq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'drf_yasg',
-
+    'corsheaders',
     'game',
     'authorization'
 ]
@@ -55,7 +55,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

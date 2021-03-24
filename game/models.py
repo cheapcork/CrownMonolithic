@@ -212,6 +212,8 @@ class TransactionModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
+            # FIXME: дорого и не красиво
+            self.session = self.producer.session.player.session
             self.turn = self.session.current_turn
             self.transporting_cost = get_transporting_cost(
                 self.session.number_of_brokers,

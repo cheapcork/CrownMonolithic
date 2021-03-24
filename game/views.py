@@ -6,21 +6,21 @@ from rest_framework.decorators import api_view, renderer_classes, permission_cla
 from rest_framework.renderers import JSONRenderer
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from .serializers import SessionSerializer, PlayerSerializer, ProducerSerializer, BrokerSerializer, \
-	TransactionSerializer
+from .serializers import SessionPlayerSerializer, SessionAdminSerializer,\
+	PlayerSerializer, ProducerSerializer, BrokerSerializer, TransactionSerializer
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 
-
-class SessionViewSet(ModelViewSet):
+class SessionAdminViewSet(ModelViewSet):
 	queryset = SessionModel.objects.all()
-	serializer_class = SessionSerializer
+	serializer_class = SessionAdminSerializer
 	permission_classes = [IsAdminUser]
 
 	@action(methods=['put'], detail=True,
 			url_path='start', url_name='session_start', permission_classes=[IsAdminUser])
 	def start(self, request, pk):
 		session_instance = self.get_queryset().get(pk=pk)
+		print(request.META)
 		serializer = SessionSerializer(
 			session_instance,
 			data={
@@ -37,14 +37,31 @@ class SessionViewSet(ModelViewSet):
 			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
-class PlayerViewSet(ModelViewSet):
+
+class SessionPlayerViewSet(ModelViewSet):
+	queryset = SessionModel.objects.all()
+	serializer_class = SessionPlayerSerializer
+	permission_classes = [IsAuthenticated]
+
+
+class PlayerViewSet(viewsets.GenericViewSet,
+					mixins.RetrieveModelMixin):
+	queryset = PlayerModel.objects.all()
+	serializer_class = PlayerSerializer
+	permission_classes = [IsAuthenticated]
+
+
+class PlayerListViewSet(viewsets.GenericViewSet,
+					mixins.ListModelMixin):
 	queryset = PlayerModel.objects.all()
 	serializer_class = PlayerSerializer
 	permission_classes = [IsAdminUser]
 
 
-class GetOrUpdatePlayerViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-																				viewsets.GenericViewSet):
+class GetOrUpdatePlayerViewSet(mixins.ListModelMixin,
+							   mixins.RetrieveModelMixin,
+							   mixins.UpdateModelMixin,
+							   viewsets.GenericViewSet):
 	queryset = PlayerModel.objects.all()
 	serializer_class = PlayerSerializer
 	permission_classes = [IsAuthenticated]
@@ -62,10 +79,18 @@ class BrokerViewSet(ModelViewSet):
 	permission_classes = [IsAdminUser]
 
 
-class TransactionViewSet(ModelViewSet):
+class TransactionViewSet(viewsets.GenericViewSet,
+						 mixins.CreateModelMixin,
+						 mixins.UpdateModelMixin,
+						 mixins.ListModelMixin):
 	queryset = TransactionModel.objects.all()
 	serializer_class = TransactionSerializer
 	permission_classes = [IsAdminUser]
+
+
+class StartedGameViewSet(viewsets.GenericViewSet):
+	# queryset = SessionModel.objects.all()
+	pass
 
 
 @api_view(['PUT'])
@@ -81,7 +106,6 @@ def count_turn_view(request, pk):
 
 
 @api_view(['POST'])
-@renderer_classes([JSONRenderer])
 @permission_classes([IsAuthenticated])
 def join_session_view(request, session_pk):
 	session_instance = get_object_or_404(SessionModel, pk=session_pk)
@@ -114,9 +138,7 @@ def join_session_view(request, session_pk):
 	return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['DELETE'])
-@renderer_classes([JSONRenderer])
 @permission_classes([IsAuthenticated])
 def leave_session_view(request, session_pk):
 	session_instance = get_object_or_404(SessionModel, pk=session_pk)
@@ -132,4 +154,3 @@ def leave_session_view(request, session_pk):
 		return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	return Response(status=status.HTTP_204_NO_CONTENT)
-
