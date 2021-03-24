@@ -65,23 +65,35 @@ def count_turn_view(request, pk):
 @permission_classes([IsAuthenticated])
 def join_session_view(request, session_pk):
 	session_instance = get_object_or_404(SessionModel, pk=session_pk)
-	if session_instance.player.filter(user=request.user.id).exists():
-		return Response({
-			'error': 'You\'ve already joined this session!',
-			'players': PlayerSerializer(session_instance.player, many=True).data,
-		}, status=status.HTTP_400_BAD_REQUEST)
 
-	player_serialized = PlayerSerializer(data={
-		'nickname': request.user.username,
-		'user': request.user.id,
-		'session': session_instance.id,
+	try:
+		player_instance = PlayerModel.objects.get(user=request.user.id)
+		if player_instance.session.id == session_instance.id:
+			return Response({
+				'error': 'You\'ve already joined this session!'
+			}, status=status.HTTP_400_BAD_REQUEST)
+		elif not player_instance.session.id == 0:
+			return Response({
+				'error': 'You\'ve already joined another session!'
+			}, status=status.HTTP_400_BAD_REQUEST)
+	except PlayerModel.DoesNotExist:
+		player_serialized = PlayerSerializer(data={
+			'nickname': request.user.username,
+			'user': request.user.id,
+		})
+		if not player_serialized.is_valid():
+			return Response(player_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+		player_instance = player_serialized.save()
+
+	player = PlayerSerializer(player_instance, data={
+			'session': session_instance.id,
 	})
+	if player.is_valid():
+		player.save()
+		return Response(player.data, status=status.HTTP_200_OK)
+	return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	if not player_serialized.is_valid():
-		return Response(player_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
-	player_serialized.save()
 
-	return Response(PlayerSerializer(session_instance.player, many=True).data, status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
 @renderer_classes([JSONRenderer])
