@@ -16,10 +16,9 @@ class PlayerSerializer(serializers.ModelSerializer):
 		]
 
 	def get_role_info(self, instance):
-		print(instance.id)
 		role_classes = {
-			'broker': {'model': BrokerModel, 'serializer': BrokerSerializer},
-			'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
+			'broker': {'model': BrokerModel, 'serializer': BrokerLittleSerializer},
+			'producer': {'model': ProducerModel, 'serializer': ProducerLittleSerializer}
 		}
 		if instance.role == 'unassigned':
 			return 'unassigned'
@@ -107,20 +106,41 @@ class SessionGameSerializer(serializers.ModelSerializer):
 		]
 
 	def get_player(self, instance):
-		print(instance)
 		player = instance.player.filter(user=self.context['user'].id)
 		if player.exists():
 			return PlayerSerializer(player.get(), many=False).data
 		return "You are not in this session!"
 
 
-class ProducerSerializer(serializers.ModelSerializer):
+
+class ProducerLittleSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ProducerModel
 		fields = '__all__'
 
 
-class BrokerSerializer(serializers.ModelSerializer):
+class ProducerFullSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ProducerModel
+		fields = '__all__'
+
+
+class BrokerLittleSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = BrokerModel
+		fields = [
+			'player',
+			'city',
+			'is_bankrupt',
+		]
+		read_only = [
+			'player',
+			'city',
+			'is_bankrupt',
+		]
+
+
+class BrokerFullSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = BrokerModel
 		fields = '__all__'

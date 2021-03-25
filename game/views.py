@@ -7,7 +7,8 @@ from rest_framework.renderers import JSONRenderer
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .serializers import SessionGameSerializer, SessionLobbySerializer,\
-	PlayerSerializer, ProducerSerializer, BrokerSerializer, TransactionSerializer
+	PlayerSerializer, ProducerFullSerializer, ProducerLittleSerializer,\
+	BrokerFullSerializer, BrokerLittleSerializer, TransactionSerializer
 from .permissions import IsInSessionOrAdmin
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
@@ -21,7 +22,6 @@ class SessionLobbyViewSet(ModelViewSet):
 			url_path='start', url_name='session_start', permission_classes=[IsAdminUser])
 	def start(self, request, pk):
 		session_instance = self.get_queryset().get(pk=pk)
-		print(request.META)
 		serializer = SessionSerializer(
 			session_instance,
 			data={
@@ -65,7 +65,7 @@ class PlayerListViewSet(viewsets.GenericViewSet,
 	serializer_class = PlayerSerializer
 	permission_classes = [IsAdminUser]
 
-
+# TODO: For what is that?
 class GetOrUpdatePlayerViewSet(mixins.ListModelMixin,
 							   mixins.RetrieveModelMixin,
 							   mixins.UpdateModelMixin,
@@ -75,16 +75,16 @@ class GetOrUpdatePlayerViewSet(mixins.ListModelMixin,
 	permission_classes = [IsAuthenticated]
 
 
-class ProducerViewSet(ModelViewSet):
-	queryset = ProducerModel.objects.all()
-	serializer_class = ProducerSerializer
-	permission_classes = [IsAdminUser]
+# class ProducerViewSet(ModelViewSet):
+# 	queryset = ProducerModel.objects.all()
+# 	serializer_class = ProducerSerializer
+# 	permission_classes = [IsAdminUser]
 
 
-class BrokerViewSet(ModelViewSet):
-	queryset = BrokerModel.objects.all()
-	serializer_class = BrokerSerializer
-	permission_classes = [IsAdminUser]
+# class BrokerViewSet(ModelViewSet):
+# 	queryset = BrokerModel.objects.all()
+# 	serializer_class = BrokerSerializer
+# 	permission_classes = [IsAdminUser]
 
 
 class TransactionViewSet(viewsets.GenericViewSet,
@@ -93,7 +93,7 @@ class TransactionViewSet(viewsets.GenericViewSet,
 						 mixins.ListModelMixin):
 	queryset = TransactionModel.objects.all()
 	serializer_class = TransactionSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsInSessionOrAdmin]
 
 
 class StartedGameViewSet(viewsets.GenericViewSet):
