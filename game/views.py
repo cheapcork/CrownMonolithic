@@ -6,15 +6,16 @@ from rest_framework.decorators import api_view, renderer_classes, permission_cla
 from rest_framework.renderers import JSONRenderer
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from .serializers import SessionPlayerSerializer, SessionAdminSerializer,\
+from .serializers import SessionGameSerializer, SessionLobbySerializer,\
 	PlayerSerializer, ProducerSerializer, BrokerSerializer, TransactionSerializer
+from .permissions import IsInSessionOrAdmin
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 
-class SessionAdminViewSet(ModelViewSet):
+class SessionLobbyViewSet(ModelViewSet):
 	queryset = SessionModel.objects.all()
-	serializer_class = SessionAdminSerializer
-	permission_classes = [IsAdminUser]
+	serializer_class = SessionLobbySerializer
+	permission_classes = [IsAuthenticated]
 
 	@action(methods=['put'], detail=True,
 			url_path='start', url_name='session_start', permission_classes=[IsAdminUser])
@@ -38,10 +39,17 @@ class SessionAdminViewSet(ModelViewSet):
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SessionPlayerViewSet(ModelViewSet):
+class SessionGameViewSet(viewsets.GenericViewSet,
+					mixins.RetrieveModelMixin):
 	queryset = SessionModel.objects.all()
-	serializer_class = SessionPlayerSerializer
-	permission_classes = [IsAuthenticated]
+	serializer_class = SessionGameSerializer
+	permission_classes = [IsInSessionOrAdmin]
+
+	def get_serializer_context(self):
+		context = super(SessionGameViewSet, self).get_serializer_context()
+		context.update({'user': self.request.user})
+		return context
+
 
 
 class PlayerViewSet(viewsets.GenericViewSet,

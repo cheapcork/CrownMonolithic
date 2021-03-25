@@ -15,16 +15,17 @@ class PlayerSerializer(serializers.ModelSerializer):
 			'role_info',
 		]
 
-	def get_role_info(self, obj):
+	def get_role_info(self, instance):
+		print(instance.id)
 		role_classes = {
 			'broker': {'model': BrokerModel, 'serializer': BrokerSerializer},
 			'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
 		}
-		if obj.role == 'unassigned':
+		if instance.role == 'unassigned':
 			return 'unassigned'
 
-		model = role_classes[obj.role]['model'].objects.get(player=obj.id)
-		return role_classes[obj.role]['serializer'](model).data
+		model = role_classes[instance.role]['model'].objects.get(player=instance.id)
+		return role_classes[instance.role]['serializer'](model).data
 
 
 # class PlayerSessionSerializer(serializers.ModelSerializer):
@@ -55,7 +56,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 # 		return role
 
 
-class SessionAdminSerializer(serializers.ModelSerializer):
+class SessionLobbySerializer(serializers.ModelSerializer):
 	player = PlayerSerializer(many=True, read_only=True)
 	class Meta:
 		model = SessionModel
@@ -88,7 +89,7 @@ class SessionAdminSerializer(serializers.ModelSerializer):
 		)
 
 
-class SessionPlayerSerializer(serializers.ModelSerializer):
+class SessionGameSerializer(serializers.ModelSerializer):
 	me = serializers.SerializerMethodField('get_player')
 	class Meta:
 		model = SessionModel
@@ -106,10 +107,11 @@ class SessionPlayerSerializer(serializers.ModelSerializer):
 		]
 
 	def get_player(self, instance):
-		return PlayerSerializer(
-			instance.player.get(user=self.context['request'].user.id),
-			many=False
-		).data
+		print(instance)
+		player = instance.player.filter(user=self.context['user'].id)
+		if player.exists():
+			return PlayerSerializer(player.get(), many=False).data
+		return "You are not in this session!"
 
 
 class ProducerSerializer(serializers.ModelSerializer):
