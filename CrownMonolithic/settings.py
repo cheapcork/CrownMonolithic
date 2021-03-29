@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_yasg',
     'corsheaders',
-    'game',
+    'game.apps.GameConfig',
     'authorization'
 ]
 

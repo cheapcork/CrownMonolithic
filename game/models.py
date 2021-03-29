@@ -123,8 +123,8 @@ class SessionModel(models.Model):
 class PlayerModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, related_name='player', verbose_name='Пользователь',
                              null=True)
-    session = models.ForeignKey(SessionModel, on_delete=models.SET_NULL, related_name='player', verbose_name='Сессия',
-                                null=True, blank=True)
+    session = models.ForeignKey(SessionModel, on_delete=models.CASCADE,
+                                related_name='player', verbose_name='Сессия')
     nickname = models.CharField(max_length=100, verbose_name='Никнейм', default='')
 
     role = models.CharField(max_length=20, choices=ROLES, verbose_name='Игровая роль', default='unassigned',

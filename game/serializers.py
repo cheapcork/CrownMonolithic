@@ -13,6 +13,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 			'nickname',
 			'role',
 			'role_info',
+			'session',
 		]
 
 	def get_role_info(self, instance):
@@ -56,7 +57,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 
 class SessionLobbySerializer(serializers.ModelSerializer):
-	player = PlayerSerializer(many=True, read_only=True)
+	players = serializers.IntegerField(source='player.count', read_only=True)
 	class Meta:
 		model = SessionModel
 		fields = [
@@ -72,13 +73,13 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 			'producer_starting_balance',
 			'transaction_limit',
 			'current_turn',
-			'player',
+			'players',
 		]
 		read_only = [
 			'id',
 			'game_type',
 			'number_of_brokers',
-			'player',
+			'players',
 		]
 
 	def get_session_players(self, instance):

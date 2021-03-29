@@ -20,7 +20,6 @@ class TokenAuthMiddleware:
     async def __call__(self, scope, receive, send):
         if 'Authorization' in dict(scope['cookies']):
             token_name, token_key = scope['cookies']['Authorization'].split('%20')
-            print(token_name, token_key)
             scope['user'] = await get_user(token_key)
         return await self.instance(scope, receive, send)
 

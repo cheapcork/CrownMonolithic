@@ -124,7 +124,6 @@ def count_turn_view(request, pk):
 @permission_classes([IsAuthenticated])
 def join_session_view(request, session_pk):
 	session_instance = get_object_or_404(SessionModel, pk=session_pk)
-
 	try:
 		player_instance = PlayerModel.objects.get(user=request.user.id)
 		if player_instance.session.id == session_instance.id:
@@ -136,21 +135,16 @@ def join_session_view(request, session_pk):
 				'error': 'You\'ve already joined another session!'
 			}, status=status.HTTP_400_BAD_REQUEST)
 	except PlayerModel.DoesNotExist:
+		print(session_instance)
 		player_serialized = PlayerSerializer(data={
 			'nickname': request.user.username,
 			'user': request.user.id,
+			'session': session_instance.id,
 		})
 		if not player_serialized.is_valid():
 			return Response(player_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 		player_instance = player_serialized.save()
-
-	player = PlayerSerializer(player_instance, data={
-			'session': session_instance.id,
-	})
-	if player.is_valid():
-		player.save()
-		return Response(player.data, status=status.HTTP_200_OK)
-	return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)
+		return Response(player_serialized.data, status=status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
