@@ -13,6 +13,13 @@ from .permissions import IsInSessionOrAdmin
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 
+from django.template import loader
+from django.http import HttpResponse
+
+def test_ws(request):
+	template = loader.get_template('ws_test.html')
+	return HttpResponse(template.render({}, request))
+
 class SessionLobbyViewSet(ModelViewSet):
 	queryset = SessionModel.objects.all()
 	serializer_class = SessionLobbySerializer

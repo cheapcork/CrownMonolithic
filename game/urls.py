@@ -17,4 +17,5 @@ urlpatterns = [
 	path('join/<session_pk>/', views.join_session_view),
 	path('count-turn/<pk>/', views.count_turn_view),
 	path('leave/<session_pk>/', views.leave_session_view),
+	path('test_ws', views.test_ws)
 ]
