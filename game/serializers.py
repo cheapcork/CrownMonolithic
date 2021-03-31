@@ -18,8 +18,8 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 	def get_role_info(self, instance):
 		role_classes = {
-			'broker': {'model': BrokerModel, 'serializer': BrokerLittleSerializer},
-			'producer': {'model': ProducerModel, 'serializer': ProducerLittleSerializer}
+			'broker': {'model': BrokerModel, 'serializer': BrokerFullSerializer},
+			'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
 		}
 		if instance.role == 'unassigned':
 			return 'unassigned'
@@ -114,27 +114,50 @@ class SessionGameSerializer(serializers.ModelSerializer):
 
 
 
-class ProducerLittleSerializer(serializers.ModelSerializer):
+class ProducerSerializer(serializers.ModelSerializer):
+	transactions = serializers.SerializerMethodField('get_producer_transactions')
 	class Meta:
 		model = ProducerModel
-		fields = '__all__'
+		fields = [
+			'id',
+			'city',
+			'balance',
+			'billets_produced',
+			'billets_stored',
+			'is_bankrupt',
+			'status',
+			'transactions'
+		]
+		read_only = [
+			'id',
+			'city',
+			'balance',
+			'billets_produced',
+			'billets_stored',
+			'is_bankrupt',
+			'status',
+			'transactions'
+		]
 
-
-class ProducerFullSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ProducerModel
-		fields = '__all__'
+	def get_producer_transactions(self, instance):
+		transactions = instance.transaction.filter(
+			producer=instance.id,
+			turn=instance.player.session.current_turn
+		)
+		return TransactionSerializer(transactions, many=True).data
 
 
 class BrokerLittleSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = BrokerModel
 		fields = [
+			'id',
 			'player',
 			'city',
 			'is_bankrupt',
 		]
 		read_only = [
+			'id',
 			'player',
 			'city',
 			'is_bankrupt',
@@ -142,9 +165,32 @@ class BrokerLittleSerializer(serializers.ModelSerializer):
 
 
 class BrokerFullSerializer(serializers.ModelSerializer):
+	transactions = serializers.SerializerMethodField('get_broker_transactions')
 	class Meta:
 		model = BrokerModel
-		fields = '__all__'
+		fields = [
+			'id',
+			'city',
+			'balance',
+			'is_bankrupt',
+			'status',
+			'transactions',
+		]
+		read_only = [
+			'id',
+			'city',
+			'balance',
+			'is_bankrupt',
+			'status',
+			'transactions',
+		]
+
+	def get_broker_transactions(self, instance):
+		transactions = instance.transaction.filter(
+			broker=instance.id,
+			turn=instance.player.session.current_turn
+		)
+		return TransactionSerializer(transactions, many=True).data
 
 
 class TransactionSerializer(serializers.ModelSerializer):

@@ -124,7 +124,7 @@ class PlayerModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, related_name='player', verbose_name='Пользователь',
                              null=True)
     session = models.ForeignKey(SessionModel, on_delete=models.CASCADE,
-                                related_name='player', verbose_name='Сессия')
+                                related_name='player', verbose_name='Сессия', default=0)
     nickname = models.CharField(max_length=100, verbose_name='Никнейм', default='')
 
     role = models.CharField(max_length=20, choices=ROLES, verbose_name='Игровая роль', default='unassigned',
@@ -213,7 +213,7 @@ class TransactionModel(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             # FIXME: дорого и не красиво
-            self.session = self.producer.session.player.session
+            self.session = self.producer.player.session
             self.turn = self.session.current_turn
             self.transporting_cost = get_transporting_cost(
                 self.session.number_of_brokers,

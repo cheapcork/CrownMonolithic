@@ -7,7 +7,7 @@ from rest_framework.renderers import JSONRenderer
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .serializers import SessionGameSerializer, SessionLobbySerializer,\
-	PlayerSerializer, ProducerFullSerializer, ProducerLittleSerializer,\
+	PlayerSerializer, ProducerSerializer,\
 	BrokerFullSerializer, BrokerLittleSerializer, TransactionSerializer
 from .permissions import IsInSessionOrAdmin
 from django.views.decorators.http import require_http_methods
