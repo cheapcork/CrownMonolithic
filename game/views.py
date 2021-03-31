@@ -12,6 +12,7 @@ from .serializers import SessionGameSerializer, SessionLobbySerializer,\
 from .permissions import IsInSessionOrAdmin
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
+from game.services.players_finished import players_finished
 
 from django.template import loader
 from django.http import HttpResponse
@@ -185,6 +186,7 @@ def end_turn(request):
 		return Response({'error': 'You\'ve already finished turn!'}, status=status.HTTP_400_BAD_REQUEST)
 	player.ended_turn = True
 	player.save()
+	players_finished(player.session)
 	return Response(status=status.HTTP_200_OK)
 
 @api_view(['PUT'])

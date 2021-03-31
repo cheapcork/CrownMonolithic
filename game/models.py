@@ -111,7 +111,9 @@ class SessionModel(models.Model):
             if 0 < self.current_turn < self.turn_count:
                 self.crown_balance = change_game_parameters(SessionModel, self.id)
                 self.current_turn += 1
-
+                for player in self.player.all():
+                    player.ended_turn = False
+                    player.save()
             if self.current_turn == self.turn_count:
                 self.status = 'finished'
             super().save(*args, **kwargs)
