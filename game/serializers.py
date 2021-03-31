@@ -200,12 +200,29 @@ class BrokerFullSerializer(serializers.ModelSerializer):
 			'transactions',
 		]
 
+	# FIXME: optimize me, please
 	def get_broker_transactions(self, instance):
-		transactions = instance.transaction.filter(
-			broker=instance.id,
-			turn=instance.player.session.current_turn
-		)
-		return TransactionSerializer(transactions, many=True).data
+		transactions = {}
+		transactions['active_transactions'] = TransactionSerializer(
+			instance.transaction.filter(
+				broker=instance.id,
+				turn=instance.player.session.current_turn,
+				status='active'
+
+			),
+			many=True
+		).data
+		for turn in range(1, instance.player.session.current_turn + 1):
+			transactions[turn] = TransactionSerializer(
+				instance.transaction.filter(
+					broker=instance.id,
+					turn=turn,
+					status__in=['accepted', 'denied']
+				),
+				many=True
+			).data
+
+		return transactions
 
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -219,11 +236,12 @@ class TransactionSerializer(serializers.ModelSerializer):
 			'price',
 			'transporting_cost',
 			'turn',
+			'status'
 		]
 		read_only = [
 			'session',
 			'transporting_cost',
-			'turn',
+			'turn'
 		]
 		extra_kwargs = {
 			'session': {
