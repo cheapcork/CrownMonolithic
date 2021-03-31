@@ -43,7 +43,7 @@ class SessionLobbyViewSet(ModelViewSet):
 		try:
 			serializer.save()
 		except Exception as e:
-			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -105,6 +105,71 @@ class TransactionViewSet(viewsets.GenericViewSet,
 	serializer_class = TransactionSerializer
 	permission_classes = [IsInSessionOrAdmin]
 
+	@action(methods=['PUT'], detail=True,
+			url_name='deny_transaction', permission_classes=[IsAuthenticated])
+	def deny(self, request, pk):
+		transaction_instance = self.get_queryset().get(pk=pk)
+		# FIXME: Optimise me, please
+		if not request.user.player.exists():
+			return Response({'detail': 'You\'re not a player'},
+							status=status.HTTP_400_BAD_REQUEST)
+		player = request.user.player.get()
+		if player.role == 'unassigned':
+			return Response({'detail': 'You\'ve no role!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		elif not ((
+					player.role == 'producer' and
+					transaction_instance.producer != player.producer
+				) or (
+					player.role == 'broker' and
+ 					transaction_instance.broker != player.broker
+				)):
+			return Response({'detail': 'That\'s not your transaction!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		elif transaction_instance.status == 'denied':
+			return Response({'detail': 'Transaction is already denied!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		elif transaction_instance.status == 'accepted':
+			return Response({'detail': 'Transaction is already accepted!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		transaction_instance.status = 'denied'
+		transaction_instance.save()
+		return Response(status=status.HTTP_200_OK)
+
+	@action(methods=['PUT'], detail=True,
+			url_name='accept_transaction', permission_classes=[IsAuthenticated])
+	def accept(self, request, pk):
+		transaction_instance = self.get_queryset().get(pk=pk)
+		# FIXME: Optimise me, please
+		if not request.user.player.exists():
+			return Response({'detail': 'You\'re not a player'},
+							status=status.HTTP_400_BAD_REQUEST)
+		player = request.user.player.get()
+		if player.role == 'unassigned':
+			return Response({'detail': 'You\'ve no role!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		elif not ((
+						  player.role == 'producer' and
+						  transaction_instance.producer != player.producer
+				  ) or (
+						  player.role == 'broker' and
+						  transaction_instance.broker != player.broker
+				  )):
+			return Response({'detail': 'That\'s not your transaction!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		elif transaction_instance.status == 'denied':
+			return Response({'detail': 'Transaction is already denied!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		elif transaction_instance.status == 'accepted':
+			return Response({'detail': 'Transaction is already accepted!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		# TODO: вставить реаизацию сделки
+		transaction_instance.status = 'accept'
+		transaction_instance.save()
+		print(transaction_instance.status)
+		print('accept')
+		return Response(status=status.HTTP_200_OK)
+
 
 """
 Пересчет хода
@@ -115,9 +180,9 @@ class TransactionViewSet(viewsets.GenericViewSet,
 def count_turn_view(request, pk):
 	session_instance = get_object_or_404(SessionModel, pk=pk)
 	if session_instance.status == 'initialized':
-		return Response({'error': 'Session is not started yet!'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'detail': 'Session is not started yet!'}, status=status.HTTP_400_BAD_REQUEST)
 	if session_instance.status == 'finished':
-		return Response({'error': 'Session is already finished!'},status=status.HTTP_400_BAD_REQUEST)
+		return Response({'detail': 'Session is already finished!'},status=status.HTTP_400_BAD_REQUEST)
 	session_instance.save()
 	print(SessionLobbySerializer(session_instance).data)
 	return Response(status=status.HTTP_200_OK)
@@ -134,11 +199,11 @@ def join_session_view(request, session_pk):
 		player_instance = PlayerModel.objects.get(user=request.user.id)
 		if player_instance.session.id == session_instance.id:
 			return Response({
-				'error': 'You\'ve already joined this session!'
+				'detail': 'You\'ve already joined this session!'
 			}, status=status.HTTP_400_BAD_REQUEST)
 		elif not player_instance.session.id == 0:
 			return Response({
-				'error': 'You\'ve already joined another session!'
+				'detail': 'You\'ve already joined another session!'
 			}, status=status.HTTP_400_BAD_REQUEST)
 	except PlayerModel.DoesNotExist:
 		print(session_instance)
@@ -159,14 +224,14 @@ def leave_session_view(request, session_pk):
 	session_instance = get_object_or_404(SessionModel, pk=session_pk)
 	if not session_instance.player.filter(user=request.user.id).exists():
 		return Response({
-			'error': 'You\'re not in this session!',
+			'detail': 'You\'re not in this session!',
 		}, status=status.HTTP_400_BAD_REQUEST)
 
 	try:
 		session_instance.player.get(user=request.user.id).delete()
 	except Exception as e:
 		# TODO: Exception handler
-		return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -180,10 +245,10 @@ def end_turn(request):
 	try:
 		player = request.user.player.get()
 	except PlayerModel.DoesNotExist:
-		return Response({'error': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'detail': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
 
 	if player.ended_turn:
-		return Response({'error': 'You\'ve already finished turn!'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'detail': 'You\'ve already finished turn!'}, status=status.HTTP_400_BAD_REQUEST)
 	player.ended_turn = True
 	player.save()
 	players_finished(player.session)
@@ -195,10 +260,10 @@ def cancel_end_turn(request):
 	try:
 		player = request.user.player.get()
 	except PlayerModel.DoesNotExist:
-		return Response({'error': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'detail': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
 
 	if not player.ended_turn:
-		return Response({'error': 'You\'ve not finished turn yet!'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'detail': 'You\'ve not finished turn yet!'}, status=status.HTTP_400_BAD_REQUEST)
 	player.ended_turn = False
 	player.save()
 	return Response(status=status.HTTP_200_OK)

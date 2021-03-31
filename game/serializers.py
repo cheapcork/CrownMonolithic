@@ -229,6 +229,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TransactionModel
 		fields = [
+			'id',
 			'session',
 			'producer',
 			'broker',
@@ -239,6 +240,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 			'status'
 		]
 		read_only = [
+			'id',
 			'session',
 			'transporting_cost',
 			'turn'
