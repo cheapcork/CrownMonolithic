@@ -113,11 +113,13 @@ class StartedGameViewSet(viewsets.GenericViewSet):
 @permission_classes([IsAdminUser])
 def count_turn_view(request, pk):
 	session_instance = get_object_or_404(SessionModel, pk=pk)
-	if request.method == 'PUT':
-		session_instance.save()
-		return Response(status=status.HTTP_200_OK)
-	else:
-		return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+	if session_instance.status == 'initialized':
+		return Response({'error': 'Session is not started yet!'}, status=status.HTTP_400_BAD_REQUEST)
+	if session_instance.status == 'finished':
+		return Response({'error': 'Session is already finished!'},status=status.HTTP_400_BAD_REQUEST)
+	session_instance.save()
+	print(SessionLobbySerializer(session_instance).data)
+	return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -163,3 +165,4 @@ def leave_session_view(request, session_pk):
 		return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	return Response(status=status.HTTP_204_NO_CONTENT)
+

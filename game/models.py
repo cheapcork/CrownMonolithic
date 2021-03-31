@@ -105,11 +105,13 @@ class SessionModel(models.Model):
             create_role_models(SessionModel, self.pk)
             self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
             self.current_turn = 1
+            self.status = 'started'
             super().save(*args, **kwargs)
         if self.status == 'started':
-            if 1 < self.current_turn < self.turn_count:
+            if 0 < self.current_turn < self.turn_count:
                 self.crown_balance = change_game_parameters(SessionModel, self.id)
                 self.current_turn += 1
+
             if self.current_turn == self.turn_count:
                 self.status = 'finished'
             super().save(*args, **kwargs)
