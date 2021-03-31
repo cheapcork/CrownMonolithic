@@ -29,7 +29,7 @@ class SessionLobbyViewSet(ModelViewSet):
 			url_path='start', url_name='session_start', permission_classes=[IsAdminUser])
 	def start(self, request, pk):
 		session_instance = self.get_queryset().get(pk=pk)
-		serializer = SessionSerializer(
+		serializer = self.serializer_class(
 			session_instance,
 			data={
 				"name": session_instance.name,
@@ -93,7 +93,9 @@ class GetOrUpdatePlayerViewSet(mixins.ListModelMixin,
 # 	serializer_class = BrokerSerializer
 # 	permission_classes = [IsAdminUser]
 
-
+"""
+Транзакции
+"""
 class TransactionViewSet(viewsets.GenericViewSet,
 						 mixins.CreateModelMixin,
 						 mixins.UpdateModelMixin,
@@ -103,11 +105,9 @@ class TransactionViewSet(viewsets.GenericViewSet,
 	permission_classes = [IsInSessionOrAdmin]
 
 
-class StartedGameViewSet(viewsets.GenericViewSet):
-	# queryset = SessionModel.objects.all()
-	pass
-
-
+"""
+Пересчет хода
+"""
 @api_view(['PUT'])
 @renderer_classes([JSONRenderer])
 @permission_classes([IsAdminUser])
@@ -122,6 +122,9 @@ def count_turn_view(request, pk):
 	return Response(status=status.HTTP_200_OK)
 
 
+"""
+Войти/выйти в сессию
+"""
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def join_session_view(request, session_pk):
@@ -166,3 +169,34 @@ def leave_session_view(request, session_pk):
 
 	return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+"""
+Конец хода
+"""
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def end_turn(request):
+	try:
+		player = request.user.player.get()
+	except PlayerModel.DoesNotExist:
+		return Response({'error': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
+
+	if player.ended_turn:
+		return Response({'error': 'You\'ve already finished turn!'}, status=status.HTTP_400_BAD_REQUEST)
+	player.ended_turn = True
+	player.save()
+	return Response(status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def cancel_end_turn(request):
+	try:
+		player = request.user.player.get()
+	except PlayerModel.DoesNotExist:
+		return Response({'error': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
+
+	if not player.ended_turn:
+		return Response({'error': 'You\'ve not finished turn yet!'}, status=status.HTTP_400_BAD_REQUEST)
+	player.ended_turn = False
+	player.save()
+	return Response(status=status.HTTP_200_OK)

@@ -58,6 +58,8 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 class SessionLobbySerializer(serializers.ModelSerializer):
 	players = serializers.IntegerField(source='player.count', read_only=True)
+	players_finished_turn = serializers.SerializerMethodField(
+		source='get_players_finished_turn', read_only=True)
 	class Meta:
 		model = SessionModel
 		fields = [
@@ -74,12 +76,14 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 			'transaction_limit',
 			'current_turn',
 			'players',
+			'players_finished_turn',
 		]
 		read_only = [
 			'id',
 			'game_type',
 			'number_of_brokers',
 			'players',
+			'players_finished_turn',
 		]
 
 	def get_session_players(self, instance):
@@ -88,9 +92,14 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 			many=True
 		)
 
+	def get_players_finished_turn(self, instance):
+		return instance.player.filter(ended_turn=True).count()
+
 
 class SessionGameSerializer(serializers.ModelSerializer):
 	me = serializers.SerializerMethodField('get_player')
+	players_finished_turn = serializers.SerializerMethodField(
+		source='get_players_finished_turn', read_only=True)
 	class Meta:
 		model = SessionModel
 		fields = [
@@ -99,11 +108,15 @@ class SessionGameSerializer(serializers.ModelSerializer):
 			'status',
 			'current_turn',
 			'me',
+			'players_finished_turn'
 		]
 		read_only = [
 			'id',
 			'name',
+			'status',
+			'current_turn',
 			'me',
+			'players_finished_turn'
 		]
 
 	def get_player(self, instance):
@@ -112,6 +125,8 @@ class SessionGameSerializer(serializers.ModelSerializer):
 			return PlayerSerializer(player.get(), many=False).data
 		return "You are not in this session!"
 
+	def get_players_finished_turn(self, instance):
+		return instance.player.filter(ended_turn=True).count()
 
 
 class ProducerSerializer(serializers.ModelSerializer):
