@@ -4,6 +4,7 @@ from game.services.role_randomizer import distribute_roles
 from game.services.get_transporting_cost import get_transporting_cost
 from game.services.create_role_models import create_role_models
 from django.contrib.auth.models import User as UserModel
+from game.services.count_utils import transaction_denier
 
 ROLES = (
     ('unassigned', 'Не назначена'),
@@ -39,6 +40,12 @@ CITIES = (
     ('AD', "Алендор"),
     ('NF', "Неверфол"),
     ('ET', "Этруа"),)
+
+TRANSACTION_STATUSES = (
+    ('active', 'Сделка на рассмотрении'),
+    ('accepted', 'Сделка согласована'),
+    ('denied', 'Сделка отклонена')
+)
 
 
 class SessionModel(models.Model):
@@ -114,6 +121,7 @@ class SessionModel(models.Model):
                 for player in self.player.all():
                     player.ended_turn = False
                     player.save()
+                transaction_denier(self)
             if self.current_turn == self.turn_count:
                 self.status = 'finished'
             super().save(*args, **kwargs)
@@ -203,6 +211,7 @@ class TransactionModel(models.Model):
     price = models.PositiveSmallIntegerField(default=0)
     transporting_cost = models.PositiveSmallIntegerField(default=10, editable=False)
     turn = models.PositiveSmallIntegerField(editable=False)
+    status = models.CharField(max_length=15, choices=TRANSACTION_STATUSES, default='active')
 
     class Meta:
         verbose_name = 'Транзакция'
