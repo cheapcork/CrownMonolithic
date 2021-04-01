@@ -13,7 +13,9 @@ from .permissions import IsInSessionOrAdmin
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 from game.services.players_finished import players_finished
+from game.services.full_session_start import start_session
 from django.db.models import F
+
 
 from django.template import loader
 from django.http import HttpResponse
@@ -41,22 +43,12 @@ class SessionLobbyViewSet(ModelViewSet):
 			url_path='start', url_name='session_start',
 			permission_classes=[IsAdminUser])
 	def start(self, request, pk):
-		session_instance = self.get_queryset().get(pk=pk)
-		serializer = self.serializer_class(
-			session_instance,
-			data={
-				"name": session_instance.name,
-				"turn_count": session_instance.turn_count,
-				"status": "created",
-			})
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+		session = self.get_queryset().get(pk=pk)
 		try:
-			serializer.save()
+			start_session(session, max_capacity=False)
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-		return Response(serializer.data, status=status.HTTP_200_OK)
+		return Response(status=status.HTTP_200_OK)
 
 	@action(methods=['PUT'], detail=True, url_path='set_phase',
 			permission_classes=[IsAdminUser])
@@ -249,7 +241,7 @@ def count_turn_view(request, pk):
 def join_session_view(request, session_pk):
 	session_instance = get_object_or_404(SessionModel, pk=session_pk)
 	try:
-		player_instance = PlayerModel.objects.get(user=request.user.id)
+		player_instance = PlayerModel.objects.get(user=request.user)
 		if player_instance.session.id == session_instance.id:
 			return Response({
 				'detail': 'You\'ve already joined this session!'
@@ -259,8 +251,8 @@ def join_session_view(request, session_pk):
 				'detail': 'You\'ve already joined another session!'
 			}, status=status.HTTP_400_BAD_REQUEST)
 	except PlayerModel.DoesNotExist:
-		# if not session_instance.status == 'initialized':
-
+		if not session_instance.status == 'initialized':
+			return Response({'detail': 'Session is started or finished!'}, status=status.HTTP_400_BAD_REQUEST)
 		print(session_instance)
 		player_serialized = PlayerSerializer(data={
 			'nickname': request.user.username,
@@ -270,6 +262,10 @@ def join_session_view(request, session_pk):
 		if not player_serialized.is_valid():
 			return Response(player_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 		player_serialized.save()
+		try:
+			start_session(session_instance)
+		except Exception:
+			pass
 		return Response(player_serialized.data, status=status.HTTP_200_OK)
 
 

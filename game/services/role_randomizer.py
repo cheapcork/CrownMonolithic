@@ -21,8 +21,11 @@ def distribute_roles(session_model, session_id):
 	number_of_brokers_to_distribute = session_instance.number_of_brokers - preassigned_brokers.count()
 	try:
 		broker_players_sample = random.sample(player_models_list, number_of_brokers_to_distribute)
-	except ValueError:
-		raise Exception('Not enough players')
+		min_players, max_players = session_instance.number_of_players.split('-')
+		print(int(min_players), session_instance.player.count(), int(max_players))
+		assert int(min_players) <= session_instance.player.count() <= int(max_players)
+	except (ValueError, AssertionError):
+		raise Exception('Not enough players!')
 
 	for player in players_queryset:
 		for broker_player in broker_players_sample:

@@ -1,11 +1,9 @@
 from rest_framework import serializers
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 
-# class Player
 
 class PlayerSerializer(serializers.ModelSerializer):
 	role_info = serializers.SerializerMethodField('get_role_info')
-	user_id = serializers.IntegerField(source='user.id', read_only=True)
 	class Meta:
 		model = PlayerModel
 		fields = [
@@ -15,10 +13,10 @@ class PlayerSerializer(serializers.ModelSerializer):
 			'role',
 			'role_info',
 			'session',
+			'user',
 		]
 		read_only = [
 			'id',
-			'user_id',
 		]
 
 	def get_role_info(self, instance):

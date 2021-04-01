@@ -112,6 +112,8 @@ class SessionModel(models.Model):
         if not self.pk:
             self.initialize_game_settings()
             super(SessionModel, self).save(*args, **kwargs)
+        if self.status == 'initialized':
+            super().save(*args, **kwargs)
         if self.status == 'created':
             distribute_roles(SessionModel, self.id)
             create_role_models(SessionModel, self.pk)
