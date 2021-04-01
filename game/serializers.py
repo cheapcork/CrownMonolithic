@@ -5,7 +5,7 @@ from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, Trans
 
 class PlayerSerializer(serializers.ModelSerializer):
 	role_info = serializers.SerializerMethodField('get_role_info')
-	user_id = serializers.IntegerField(source='user.id')
+	user_id = serializers.IntegerField(source='user.id', read_only=True)
 	class Meta:
 		model = PlayerModel
 		fields = [
@@ -15,6 +15,10 @@ class PlayerSerializer(serializers.ModelSerializer):
 			'role',
 			'role_info',
 			'session',
+		]
+		read_only = [
+			'id',
+			'user_id',
 		]
 
 	def get_role_info(self, instance):

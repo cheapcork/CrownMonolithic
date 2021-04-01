@@ -16,7 +16,7 @@ urlpatterns = [
 	# path('trade/'),
 	path('join/<session_pk>/', views.join_session_view),
 	path('count_turn/<pk>/', views.count_turn_view),
-	path('leave/<session_pk>/', views.leave_session_view),
+	path('leave/', views.leave_session_view),
 	path('end_turn/', views.end_turn),
 	path('cancel_end_turn/', views.cancel_end_turn),
 	path('produce/', views.produce),

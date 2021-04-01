@@ -81,6 +81,7 @@ class SessionLobbyViewSet(ModelViewSet):
 		# FIXME: Костыль, можно исправить, вынув логику из save
 		return Response(status=status.HTTP_200_OK)
 
+
 class SessionGameViewSet(viewsets.GenericViewSet,
 					mixins.RetrieveModelMixin,
 					mixins.ListModelMixin):
@@ -247,6 +248,8 @@ def join_session_view(request, session_pk):
 				'detail': 'You\'ve already joined another session!'
 			}, status=status.HTTP_400_BAD_REQUEST)
 	except PlayerModel.DoesNotExist:
+		# if not session_instance.status == 'initialized':
+
 		print(session_instance)
 		player_serialized = PlayerSerializer(data={
 			'nickname': request.user.username,
@@ -255,7 +258,7 @@ def join_session_view(request, session_pk):
 		})
 		if not player_serialized.is_valid():
 			return Response(player_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
-		player_instance = player_serialized.save()
+		player_serialized.save()
 		return Response(player_serialized.data, status=status.HTTP_200_OK)
 
 
@@ -263,7 +266,7 @@ def join_session_view(request, session_pk):
 @permission_classes([IsAuthenticated])
 def leave_session_view(request):
 	try:
-		user.player.delete()
+		request.user.player.get().delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 	except PlayerModel.DoesNotExist:
 		return Response({'detail': 'You are not in any session!'},
