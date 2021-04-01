@@ -99,6 +99,17 @@ class SessionGameViewSet(viewsets.GenericViewSet,
 		serializer = SessionListSerializer(queryset, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def is_started(request, session_pk):
+	is_started = False
+	try:
+		if SessionModel.objects.get(pk=session_pk).status == 'started':
+			is_started = True
+	except SessionModel.DoesNotExist:
+		return Response({'detail': 'Session doesn\'t exist!'},
+						status=status.HTTP_400_BAD_REQUEST)
+	return Response({ 'is_started': is_started},
+						status=status.HTTP_200_OK)
 """
 Игроки
 """
