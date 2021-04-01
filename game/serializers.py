@@ -5,11 +5,12 @@ from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, Trans
 
 class PlayerSerializer(serializers.ModelSerializer):
 	role_info = serializers.SerializerMethodField('get_role_info')
+	user_id = serializers.IntegerField(source='user.id')
 	class Meta:
 		model = PlayerModel
 		fields = [
 			'id',
-			'user',
+			'user_id',
 			'nickname',
 			'role',
 			'role_info',
@@ -75,6 +76,7 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 			'producer_starting_balance',
 			'transaction_limit',
 			'current_turn',
+			'turn_phase',
 			'players',
 			'players_finished_turn',
 		]
@@ -95,6 +97,23 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 	def get_players_finished_turn(self, instance):
 		return instance.player.filter(ended_turn=True).count()
 
+class SessionListSerializer(serializers.ModelSerializer):
+	players = serializers.IntegerField(source='player.count', read_only=True)
+	class Meta:
+		model = SessionModel
+		fields = [
+			'id',
+			'name',
+			'status',
+			'players'
+		]
+		read_only = [
+			'id',
+			'name',
+			'status',
+			'players'
+		]
+
 
 class SessionGameSerializer(serializers.ModelSerializer):
 	me = serializers.SerializerMethodField('get_player')
@@ -107,6 +126,7 @@ class SessionGameSerializer(serializers.ModelSerializer):
 			'name',
 			'status',
 			'current_turn',
+			'turn_phase',
 			'me',
 			'players_finished_turn'
 		]
@@ -115,6 +135,7 @@ class SessionGameSerializer(serializers.ModelSerializer):
 			'name',
 			'status',
 			'current_turn',
+			'turn_phase',
 			'me',
 			'players_finished_turn'
 		]
@@ -181,12 +202,14 @@ class BrokerLittleSerializer(serializers.ModelSerializer):
 
 class BrokerFullSerializer(serializers.ModelSerializer):
 	transactions = serializers.SerializerMethodField('get_broker_transactions')
+	crown_balance = serializers.IntegerField(source='player.session.crown_balance')
 	class Meta:
 		model = BrokerModel
 		fields = [
 			'id',
 			'city',
 			'balance',
+			'crown_balance',
 			'is_bankrupt',
 			'status',
 			'transactions',
@@ -195,6 +218,7 @@ class BrokerFullSerializer(serializers.ModelSerializer):
 			'id',
 			'city',
 			'balance',
+			'crown_balance',
 			'is_bankrupt',
 			'status',
 			'transactions',

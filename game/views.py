@@ -7,12 +7,13 @@ from rest_framework.renderers import JSONRenderer
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .serializers import SessionGameSerializer, SessionLobbySerializer,\
-	PlayerSerializer, ProducerSerializer,\
+	PlayerSerializer, ProducerSerializer, SessionListSerializer,\
 	BrokerFullSerializer, BrokerLittleSerializer, TransactionSerializer
 from .permissions import IsInSessionOrAdmin
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 from game.services.players_finished import players_finished
+from django.db.models import F
 
 from django.template import loader
 from django.http import HttpResponse
@@ -21,13 +22,24 @@ def test_ws(request):
 	template = loader.get_template('ws_test.html')
 	return HttpResponse(template.render({}, request))
 
+"""
+Сессии
+"""
 class SessionLobbyViewSet(ModelViewSet):
 	queryset = SessionModel.objects.all()
 	serializer_class = SessionLobbySerializer
 	permission_classes = [IsAuthenticated]
 
-	@action(methods=['put'], detail=True,
-			url_path='start', url_name='session_start', permission_classes=[IsAdminUser])
+	@action(methods=['GET'], detail=False,
+			url_path='initialized', url_name='session_start')
+	def initialized(self, request, *args, **kwargs):
+		queryset = self.get_queryset().filter(status='initialized')
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
+	@action(methods=['PUT'], detail=True,
+			url_path='start', url_name='session_start',
+			permission_classes=[IsAdminUser])
 	def start(self, request, pk):
 		session_instance = self.get_queryset().get(pk=pk)
 		serializer = self.serializer_class(
@@ -46,9 +58,32 @@ class SessionLobbyViewSet(ModelViewSet):
 			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
+	@action(methods=['PUT'], detail=True, url_path='set_phase',
+			permission_classes=[IsAdminUser])
+	def set_turn_phase(self, request, pk):
+		try:
+			session = SessionModel.objects.get(pk=pk)
+		except SessionModel.DoesNotExist:
+			return Response({'detail': 'Session not found!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		phase = request.data.get('phase', False)
+		if not phase:
+			return Response({'detail': 'What PHASE do you want?'},
+							status=status.HTTP_400_BAD_REQUEST)
+		if not session.status == 'started':
+			return Response({'detail': 'Session is not started!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		if session.turn_phase == phase:
+			return Response({'detail': 'It\'s already that phase!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		session.turn_phase = phase
+		super(SessionModel, session).save()
+		# FIXME: Костыль, можно исправить, вынув логику из save
+		return Response(status=status.HTTP_200_OK)
 
 class SessionGameViewSet(viewsets.GenericViewSet,
-					mixins.RetrieveModelMixin):
+					mixins.RetrieveModelMixin,
+					mixins.ListModelMixin):
 	queryset = SessionModel.objects.all()
 	serializer_class = SessionGameSerializer
 	permission_classes = [IsInSessionOrAdmin]
@@ -58,8 +93,14 @@ class SessionGameViewSet(viewsets.GenericViewSet,
 		context.update({'user': self.request.user})
 		return context
 
+	def list(self, request):
+		queryset = self.get_queryset().filter(status='initialized')
+		serializer = SessionListSerializer(queryset, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+"""
+Игроки
+"""
 class PlayerViewSet(viewsets.GenericViewSet,
 					mixins.RetrieveModelMixin):
 	queryset = PlayerModel.objects.all()
@@ -72,27 +113,6 @@ class PlayerListViewSet(viewsets.GenericViewSet,
 	queryset = PlayerModel.objects.all()
 	serializer_class = PlayerSerializer
 	permission_classes = [IsAdminUser]
-
-# TODO: For what is that?
-class GetOrUpdatePlayerViewSet(mixins.ListModelMixin,
-							   mixins.RetrieveModelMixin,
-							   mixins.UpdateModelMixin,
-							   viewsets.GenericViewSet):
-	queryset = PlayerModel.objects.all()
-	serializer_class = PlayerSerializer
-	permission_classes = [IsAuthenticated]
-
-
-# class ProducerViewSet(ModelViewSet):
-# 	queryset = ProducerModel.objects.all()
-# 	serializer_class = ProducerSerializer
-# 	permission_classes = [IsAdminUser]
-
-
-# class BrokerViewSet(ModelViewSet):
-# 	queryset = BrokerModel.objects.all()
-# 	serializer_class = BrokerSerializer
-# 	permission_classes = [IsAdminUser]
 
 """
 Транзакции
@@ -163,16 +183,34 @@ class TransactionViewSet(viewsets.GenericViewSet,
 		elif transaction_instance.status == 'accepted':
 			return Response({'detail': 'Transaction is already accepted!'},
 							status=status.HTTP_400_BAD_REQUEST)
-		# TODO: вставить реаизацию сделки
 		transaction_instance.status = 'accept'
 		transaction_instance.save()
-		print(transaction_instance.status)
-		print('accept')
 		return Response(status=status.HTTP_200_OK)
 
+"""
+Производитель
+"""
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def produce(request):
+	try:
+		producer = ProducerModel.objects.get(player=request.user.player.get())
+	except PlayerModel.DoesNotExist:
+		return Response({'detail': 'You are not in session!'},
+						status=status.HTTP_400_BAD_REQUEST)
+	except ProducerModel.DoesNotExist:
+		return Response({'detail': 'You are not a producer!'},
+						status=status.HTTP_400_BAD_REQUEST)
+	# if producer.player.session.turn
+	if producer.billets_produced != 0:
+		return Response({'detail': 'You\'ve already produced at this turn'},
+						status=status.HTTP_400_BAD_REQUEST)
+	producer.billets_produced = request.data['produce']
+	producer.save()
+	return Response(status=status.HTTP_201_CREATED)
 
 """
-Пересчет хода
+Пересчет хода (админ)
 """
 @api_view(['PUT'])
 @renderer_classes([JSONRenderer])
@@ -187,6 +225,9 @@ def count_turn_view(request, pk):
 	print(SessionLobbySerializer(session_instance).data)
 	return Response(status=status.HTTP_200_OK)
 
+"""
+Смена этапа (админ)
+"""
 
 """
 Войти/выйти в сессию
@@ -220,21 +261,13 @@ def join_session_view(request, session_pk):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def leave_session_view(request, session_pk):
-	session_instance = get_object_or_404(SessionModel, pk=session_pk)
-	if not session_instance.player.filter(user=request.user.id).exists():
-		return Response({
-			'detail': 'You\'re not in this session!',
-		}, status=status.HTTP_400_BAD_REQUEST)
-
+def leave_session_view(request):
 	try:
-		session_instance.player.get(user=request.user.id).delete()
-	except Exception as e:
-		# TODO: Exception handler
-		return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-	return Response(status=status.HTTP_204_NO_CONTENT)
-
+		user.player.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+	except PlayerModel.DoesNotExist:
+		return Response({'detail': 'You are not in any session!'},
+						status=status.HTTP_400_BAD_REQUEST)
 
 """
 Конец хода

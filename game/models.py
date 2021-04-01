@@ -20,7 +20,7 @@ GAME_TYPES = (
 SESSION_STATUSES = (
     ('initialized', 'Сессия инициализирована'),
     ('created', 'Сессия создана'),
-    ('started', 'Сессия заполнена'),
+    ('started', 'Сессия запущена'),
     ('finished', 'Сессия закончилась')
 )
 
@@ -47,6 +47,11 @@ TRANSACTION_STATUSES = (
     ('denied', 'Сделка отклонена')
 )
 
+PHASE_STATUSES = (
+    ('talk', 'Этап переговоров'),
+    ('transaction', 'Этап заключения сделок')
+)
+
 
 class SessionModel(models.Model):
     """
@@ -56,7 +61,7 @@ class SessionModel(models.Model):
     game_type = models.CharField(max_length=15, choices=GAME_TYPES, default='normal')
     number_of_players = models.CharField(max_length=20, choices=PLAYER_NUMBER_PRESET, default='12-14')
     turn_count = models.PositiveSmallIntegerField()
-
+    turn_phase = models.CharField(max_length=20, choices=PHASE_STATUSES, default='talk')
     number_of_brokers = models.PositiveSmallIntegerField(editable=False)
     crown_balance = models.PositiveSmallIntegerField(default=0, editable=False)
     status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='initialized', editable=True)
@@ -116,12 +121,15 @@ class SessionModel(models.Model):
             super().save(*args, **kwargs)
         if self.status == 'started':
             if 0 < self.current_turn < self.turn_count:
-                self.crown_balance = change_game_parameters(SessionModel, self.id)
-                self.current_turn += 1
-                for player in self.player.all():
-                    player.ended_turn = False
-                    player.save()
-                transaction_denier(self)
+                if self.turn_phase == 'talk':
+                    self.turn_phase = 'transaction'
+                else:
+                    self.crown_balance = change_game_parameters(SessionModel, self.id)
+                    self.current_turn += 1
+                    for player in self.player.all():
+                        player.ended_turn = False
+                        player.save()
+                    transaction_denier(self)
             if self.current_turn == self.turn_count:
                 self.status = 'finished'
             super().save(*args, **kwargs)
@@ -175,9 +183,6 @@ class ProducerModel(models.Model):
         if not self.pk:
             self.balance = self.player.session.producer_starting_balance
         super().save(*args, **kwargs)
-
-
-ProducerModel.objects.all().exclude()
 
 
 class BrokerModel(models.Model):
