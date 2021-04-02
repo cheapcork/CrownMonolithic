@@ -1,5 +1,29 @@
 from rest_framework import serializers
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+	player = serializers.SerializerMethodField('get_player')
+
+	class Meta:
+		model = User
+		fields = [
+			'id',
+			'username',
+			'player',
+		]
+		read_only = [
+			'id',
+			'username',
+			'player',
+		]
+
+	def get_player(self, instance):
+		try:
+			return PlayerSerializer(instance.player.get(), many=False).data
+		except PlayerModel.DoesNotExist:
+			return None
 
 
 class PlayerSerializer(serializers.ModelSerializer):
@@ -8,7 +32,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 		model = PlayerModel
 		fields = [
 			'id',
-			'user_id',
+			'user',
 			'nickname',
 			'role',
 			'role_info',

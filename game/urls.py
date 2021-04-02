@@ -21,6 +21,7 @@ urlpatterns = [
 	path('cancel_end_turn/', views.cancel_end_turn),
 	path('produce/', views.produce),
 	path('is_started/<session_pk>/', views.is_started),
+	path('user/me/', views.get_user_me),
 
 	# Template for testing ws
 	path('test_ws', views.test_ws)

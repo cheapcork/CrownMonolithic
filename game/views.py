@@ -8,13 +8,12 @@ from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, Trans
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .serializers import SessionGameSerializer, SessionLobbySerializer,\
 	PlayerSerializer, ProducerSerializer, SessionListSerializer,\
-	BrokerFullSerializer, BrokerLittleSerializer, TransactionSerializer
+	BrokerFullSerializer, BrokerLittleSerializer, TransactionSerializer,\
+	UserSerializer
 from .permissions import IsInSessionOrAdmin
-from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 from game.services.players_finished import players_finished
 from game.services.full_session_start import start_session
-from django.db.models import F
 
 
 from django.template import loader
@@ -102,6 +101,7 @@ def is_started(request, session_pk):
 						status=status.HTTP_400_BAD_REQUEST)
 	return Response({ 'is_started': is_started},
 						status=status.HTTP_200_OK)
+
 """
 Игроки
 """
@@ -109,7 +109,7 @@ class PlayerViewSet(viewsets.GenericViewSet,
 					mixins.RetrieveModelMixin):
 	queryset = PlayerModel.objects.all()
 	serializer_class = PlayerSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsInSessionOrAdmin]
 
 
 class PlayerListViewSet(viewsets.GenericViewSet,
@@ -117,6 +117,12 @@ class PlayerListViewSet(viewsets.GenericViewSet,
 	queryset = PlayerModel.objects.all()
 	serializer_class = PlayerSerializer
 	permission_classes = [IsAdminUser]
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_me(request):
+	return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
 
 """
 Транзакции
@@ -228,10 +234,6 @@ def count_turn_view(request, pk):
 	session_instance.save()
 	print(SessionLobbySerializer(session_instance).data)
 	return Response(status=status.HTTP_200_OK)
-
-"""
-Смена этапа (админ)
-"""
 
 """
 Войти/выйти в сессию

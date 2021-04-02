@@ -115,11 +115,15 @@ class SessionModel(models.Model):
         if self.status == 'initialized':
             super().save(*args, **kwargs)
         if self.status == 'created':
-            distribute_roles(SessionModel, self.id)
-            create_role_models(SessionModel, self.pk)
-            self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
-            self.current_turn = 1
-            self.status = 'started'
+            try:
+                distribute_roles(SessionModel, self.id)
+                create_role_models(SessionModel, self.pk)
+                self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
+                self.current_turn = 1
+                self.status = 'started'
+            except Exception as e:
+                print(e)
+                self.status = 'initialized'
             super().save(*args, **kwargs)
         if self.status == 'started':
             if 0 < self.current_turn < self.turn_count:
