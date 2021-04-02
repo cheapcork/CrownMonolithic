@@ -130,12 +130,14 @@ class SessionListSerializer(serializers.ModelSerializer):
 		fields = [
 			'id',
 			'name',
+			'game_type',
 			'status',
 			'players'
 		]
 		read_only = [
 			'id',
 			'name',
+			'game_type',
 			'status',
 			'players'
 		]
