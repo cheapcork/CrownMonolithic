@@ -1,7 +1,7 @@
-from game.services.services_normal import count_turn
-from game.services.producer import ProducerNormal
-from game.services.broker import BrokerNormal
-from game.services.transaction import TransactionNormal as Transaction
+from game.services.normal.business_logic.count_turn import count_turn
+from game.services.normal.business_logic.producer import ProducerNormal
+from game.services.normal.business_logic.broker import BrokerNormal
+from game.services.normal.business_logic.transaction import TransactionNormal as Transaction
 
 
 def generate_producer(db_producer_model_instance, producer_class):
@@ -64,7 +64,7 @@ def change_game_parameters(session_model, session_id: int):
 			'price': transaction.price,
 			'transporting_cost': transaction.transporting_cost
 		}
-		deal = Transaction(transaction.producer.id,transaction.broker.id,
+		deal = Transaction(transaction.producer.id, transaction.broker.id,
 						   terms).form_transaction()
 		transactions.append(deal)
 
@@ -97,3 +97,74 @@ def change_game_parameters(session_model, session_id: int):
 
 	return crown_balance_updated
 
+
+def initialize_game_settings(session_model, session_id: int):
+	"""
+	Инициализирует игровые настройки
+	"""
+	session_instance = session_model.objects.get(id=session_id)
+
+	if session_instance.game_type == 'normal':
+		if session_instance.number_of_players == '12-14':
+			if not session_instance.number_of_brokers:
+				session_instance.number_of_brokers = 3
+			session_instance.broker_starting_balance = 8000
+			session_instance.producer_starting_balance = 4000
+		elif session_instance.number_of_players == "15-20":
+			if not session_instance.number_of_brokers:
+				session_instance.number_of_brokers = 4
+			session_instance.broker_starting_balance = 12000
+			session_instance.producer_starting_balance = 6000
+		elif session_instance.number_of_players == "21-25":
+			if not session_instance.number_of_brokers:
+				session_instance.number_of_brokers = 5
+			session_instance.broker_starting_balance = 12000
+			session_instance.producer_starting_balance = 6000
+		elif session_instance.number_of_players == "26-30":
+			if not session_instance.number_of_brokers:
+				session_instance.number_of_brokers = 6
+			session_instance.broker_starting_balance = 12000
+			session_instance.producer_starting_balance = 6000
+		elif session_instance.number_of_players == "31-35":
+			if not session_instance.number_of_brokers:
+				session_instance.number_of_brokers = 7
+			session_instance.broker_starting_balance = 12000
+			session_instance.producer_starting_balance = 6000
+	elif session_instance.game_type == 'hard':
+		session_instance.broker_starting_balance = 12000
+		session_instance.producer_starting_balance = 6000
+
+
+def save(self, *args, **kwargs):
+	if not self.pk:
+		initialize_game_settings(SessionModel, self.id)
+		super(SessionModel, self).save(*args, **kwargs)
+	if self.status == 'initialized':
+		super().save(*args, **kwargs)
+	if self.status == 'created':
+		try:
+			distribute_roles(SessionModel, self.id)
+			create_role_models(SessionModel, self.pk)
+			self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
+			self.current_turn = 1
+			self.status = 'started'
+		except Exception as e:
+			print(e)
+			self.status = 'initialized'
+		super().save(*args, **kwargs)
+	if self.status == 'started':
+		if 0 < self.current_turn < self.turn_count:
+			if self.turn_phase == 'negotiation':
+				self.turn_phase = 'transaction'
+			else:
+				self.crown_balance = change_game_parameters(SessionModel, self.id)
+				self.current_turn += 1
+				for player in self.player.all():
+					player.ended_turn = False
+					player.save()
+				transaction_denier(self)
+		if self.current_turn == self.turn_count:
+			self.status = 'finished'
+		super().save(*args, **kwargs)
+	if self.status == 'finished':
+		super().save(*args, **kwargs)

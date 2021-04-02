@@ -1,5 +1,3 @@
-from ..models import SessionModel
-
 def start_session(session_instance, max_capacity=True):
     if max_capacity:
         min_players, max_players = session_instance.number_of_players.split('-')
