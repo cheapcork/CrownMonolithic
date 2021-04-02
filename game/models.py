@@ -4,6 +4,7 @@ from game.services.role_randomizer import distribute_roles
 from game.services.get_transporting_cost import get_transporting_cost
 from game.services.create_role_models import create_role_models
 from django.contrib.auth.models import User as UserModel
+from game.services.count_utils import transaction_denier
 
 ROLES = (
     ('unassigned', 'Не назначена'),
@@ -19,7 +20,7 @@ GAME_TYPES = (
 SESSION_STATUSES = (
     ('initialized', 'Сессия инициализирована'),
     ('created', 'Сессия создана'),
-    ('started', 'Сессия заполнена'),
+    ('started', 'Сессия запущена'),
     ('finished', 'Сессия закончилась')
 )
 
@@ -40,6 +41,17 @@ CITIES = (
     ('NF', "Неверфол"),
     ('ET', "Этруа"),)
 
+TRANSACTION_STATUSES = (
+    ('active', 'Сделка на рассмотрении'),
+    ('accepted', 'Сделка согласована'),
+    ('denied', 'Сделка отклонена')
+)
+
+PHASE_STATUSES = (
+    ('talk', 'Этап переговоров'),
+    ('transaction', 'Этап заключения сделок')
+)
+
 
 class SessionModel(models.Model):
     """
@@ -49,7 +61,7 @@ class SessionModel(models.Model):
     game_type = models.CharField(max_length=15, choices=GAME_TYPES, default='normal')
     number_of_players = models.CharField(max_length=20, choices=PLAYER_NUMBER_PRESET, default='12-14')
     turn_count = models.PositiveSmallIntegerField()
-
+    turn_phase = models.CharField(max_length=20, choices=PHASE_STATUSES, default='talk')
     number_of_brokers = models.PositiveSmallIntegerField(editable=False)
     crown_balance = models.PositiveSmallIntegerField(default=0, editable=False)
     status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='initialized', editable=True)
@@ -100,16 +112,30 @@ class SessionModel(models.Model):
         if not self.pk:
             self.initialize_game_settings()
             super(SessionModel, self).save(*args, **kwargs)
+        if self.status == 'initialized':
+            super().save(*args, **kwargs)
         if self.status == 'created':
-            distribute_roles(SessionModel, self.id)
-            create_role_models(SessionModel, self.pk)
-            self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
-            self.current_turn = 1
+            try:
+                distribute_roles(SessionModel, self.id)
+                create_role_models(SessionModel, self.pk)
+                self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
+                self.current_turn = 1
+                self.status = 'started'
+            except Exception as e:
+                print(e)
+                self.status = 'initialized'
             super().save(*args, **kwargs)
         if self.status == 'started':
-            if 1 < self.current_turn < self.turn_count:
-                self.crown_balance = change_game_parameters(SessionModel, self.id)
-                self.current_turn += 1
+            if 0 < self.current_turn < self.turn_count:
+                if self.turn_phase == 'talk':
+                    self.turn_phase = 'transaction'
+                else:
+                    self.crown_balance = change_game_parameters(SessionModel, self.id)
+                    self.current_turn += 1
+                    for player in self.player.all():
+                        player.ended_turn = False
+                        player.save()
+                    transaction_denier(self)
             if self.current_turn == self.turn_count:
                 self.status = 'finished'
             super().save(*args, **kwargs)
@@ -121,15 +147,16 @@ class SessionModel(models.Model):
 
 
 class PlayerModel(models.Model):
-    user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, related_name='player', verbose_name='Пользователь',
-                             null=True)
-    session = models.ForeignKey(SessionModel, on_delete=models.SET_NULL, related_name='player', verbose_name='Сессия',
-                                null=True, blank=True)
+    user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, related_name='player',
+                             verbose_name='Пользователь', null=True)
+    session = models.ForeignKey(SessionModel, on_delete=models.CASCADE,
+                                related_name='player', verbose_name='Сессия', default=0)
     nickname = models.CharField(max_length=100, verbose_name='Никнейм', default='')
-
-    role = models.CharField(max_length=20, choices=ROLES, verbose_name='Игровая роль', default='unassigned',
-                            editable=True)
-    position = models.PositiveSmallIntegerField(verbose_name='Место', default=0, editable=False)
+    role = models.CharField(max_length=20, choices=ROLES, verbose_name='Игровая роль',
+                            default='unassigned', editable=True)
+    position = models.PositiveSmallIntegerField(verbose_name='Место', default=0,
+                                                editable=False)
+    ended_turn = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Игрок'
@@ -164,9 +191,6 @@ class ProducerModel(models.Model):
         super().save(*args, **kwargs)
 
 
-ProducerModel.objects.all().exclude()
-
-
 class BrokerModel(models.Model):
     player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='broker', null=True, blank=True)
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
@@ -198,6 +222,7 @@ class TransactionModel(models.Model):
     price = models.PositiveSmallIntegerField(default=0)
     transporting_cost = models.PositiveSmallIntegerField(default=10, editable=False)
     turn = models.PositiveSmallIntegerField(editable=False)
+    status = models.CharField(max_length=15, choices=TRANSACTION_STATUSES, default='active')
 
     class Meta:
         verbose_name = 'Транзакция'
@@ -212,6 +237,8 @@ class TransactionModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
+            # FIXME: дорого и не красиво
+            self.session = self.producer.player.session
             self.turn = self.session.current_turn
             self.transporting_cost = get_transporting_cost(
                 self.session.number_of_brokers,

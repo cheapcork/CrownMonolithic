@@ -36,7 +36,8 @@ def save_broker(broker_class_instance, db_broker_model_instance):
 
 def change_game_parameters(session_model, session_id: int):
 	"""
-	Интерфейс, который использует функцию пересчёта хода :count_turn: для изменения полей таблиц в БД.
+	Интерфейс, который использует функцию пересчёта хода :count_turn:
+	для изменения полей таблиц в БД.
 	"""
 	session_instance = session_model.objects.get(id=session_id)
 
@@ -50,7 +51,8 @@ def change_game_parameters(session_model, session_id: int):
 	for player in db_broker_queryset:
 		db_brokers.append(player.broker.first())
 
-	db_transactions = session_instance.transaction.filter(turn=session_instance.current_turn)
+	db_transactions = session_instance.transaction.filter(
+		turn=session_instance.current_turn, status='accept')
 
 	producers, brokers, transactions = [], [], []
 
@@ -62,7 +64,8 @@ def change_game_parameters(session_model, session_id: int):
 			'price': transaction.price,
 			'transporting_cost': transaction.transporting_cost
 		}
-		deal = Transaction(transaction.producer.id, transaction.broker.id, terms).form_transaction()
+		deal = Transaction(transaction.producer.id,transaction.broker.id,
+						   terms).form_transaction()
 		transactions.append(deal)
 
 	for db_producer in db_producers:
@@ -79,7 +82,8 @@ def change_game_parameters(session_model, session_id: int):
 				broker.make_deal(transaction)
 		brokers.append(broker)
 
-	crown_balance_updated = count_turn(producers, brokers, transactions, crown_balance)
+	crown_balance_updated = count_turn(producers, brokers,
+									   transactions, crown_balance)
 
 	for producer in producers:
 		for db_producer in db_producers:

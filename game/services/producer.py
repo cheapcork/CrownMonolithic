@@ -70,6 +70,8 @@ class ProducerNormal(AbstractProducer):
             return 2000
         elif self.billets_produced <= 100:
             return 4000
+        else:
+            return 15000
 
     def count_variable_costs(self) -> int:
         if self.billets_produced <= 10:
