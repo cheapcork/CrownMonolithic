@@ -1,10 +1,6 @@
 from django.db import models
-from game.services.db_logic_interface import change_game_parameters
-from game.services.role_randomizer import distribute_roles
-from game.services.get_transporting_cost import get_transporting_cost
-from game.services.create_role_models import create_role_models
 from django.contrib.auth.models import User as UserModel
-from game.services.count_utils import transaction_denier
+from game.services.transporting_cost import get_transporting_cost
 
 ROLES = (
     ('unassigned', 'Не назначена'),
@@ -48,7 +44,7 @@ TRANSACTION_STATUSES = (
 )
 
 PHASE_STATUSES = (
-    ('talk', 'Этап переговоров'),
+    ('negotiation', 'Этап переговоров'),
     ('transaction', 'Этап заключения сделок')
 )
 
@@ -59,88 +55,23 @@ class SessionModel(models.Model):
     """
     name = models.CharField(max_length=150)
     game_type = models.CharField(max_length=15, choices=GAME_TYPES, default='normal')
-    number_of_players = models.CharField(max_length=20, choices=PLAYER_NUMBER_PRESET, default='12-14')
     turn_count = models.PositiveSmallIntegerField()
-    turn_phase = models.CharField(max_length=20, choices=PHASE_STATUSES, default='talk')
-    number_of_brokers = models.PositiveSmallIntegerField(editable=False)
+
+    # Всё, что помечено аргументом editable, впоследствии может уйти в админку, поэтому лучше выделять эти
+    # параметры отдельно
+    number_of_players = models.CharField(max_length=20, choices=PLAYER_NUMBER_PRESET, default='12-14', editable=False)
+    number_of_brokers = models.PositiveSmallIntegerField(editable=False, default=0)
     crown_balance = models.PositiveSmallIntegerField(default=0, editable=False)
     status = models.CharField(max_length=15, choices=SESSION_STATUSES, default='initialized', editable=True)
-    broker_starting_balance = models.PositiveSmallIntegerField(editable=False)
-    producer_starting_balance = models.PositiveSmallIntegerField(editable=False)
+    broker_starting_balance = models.PositiveSmallIntegerField(editable=False, default=0)
+    producer_starting_balance = models.PositiveSmallIntegerField(editable=False, default=0)
     transaction_limit = models.PositiveSmallIntegerField(default=2000, editable=False)
     current_turn = models.PositiveSmallIntegerField(verbose_name='Текущий ход', default=0, editable=True)
+    turn_phase = models.CharField(max_length=20, choices=PHASE_STATUSES, default='negotiation', editable=False)
 
     class Meta:
         verbose_name = 'Сессия'
         verbose_name_plural = 'Сессии'
-
-    def initialize_game_settings(self):
-        """
-        Инициализирует игровые настройки
-        """
-        if self.game_type == 'normal':
-            if self.number_of_players == '12-14':
-                if not self.number_of_brokers:
-                    self.number_of_brokers = 3
-                self.broker_starting_balance = 8000
-                self.producer_starting_balance = 4000
-            elif self.number_of_players == "15-20":
-                if not self.number_of_brokers:
-                    self.number_of_brokers = 4
-                self.broker_starting_balance = 12000
-                self.producer_starting_balance = 6000
-            elif self.number_of_players == "21-25":
-                if not self.number_of_brokers:
-                    self.number_of_brokers = 5
-                self.broker_starting_balance = 12000
-                self.producer_starting_balance = 6000
-            elif self.number_of_players == "26-30":
-                if not self.number_of_brokers:
-                    self.number_of_brokers = 6
-                self.broker_starting_balance = 12000
-                self.producer_starting_balance = 6000
-            elif self.number_of_players == "31-35":
-                if not self.number_of_brokers:
-                    self.number_of_brokers = 7
-                self.broker_starting_balance = 12000
-                self.producer_starting_balance = 6000
-        elif self.game_type == 'hard':
-            self.broker_starting_balance = 12000
-            self.producer_starting_balance = 6000
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.initialize_game_settings()
-            super(SessionModel, self).save(*args, **kwargs)
-        if self.status == 'initialized':
-            super().save(*args, **kwargs)
-        if self.status == 'created':
-            try:
-                distribute_roles(SessionModel, self.id)
-                create_role_models(SessionModel, self.pk)
-                self.crown_balance = self.broker_starting_balance * self.number_of_brokers / 4
-                self.current_turn = 1
-                self.status = 'started'
-            except Exception as e:
-                print(e)
-                self.status = 'initialized'
-            super().save(*args, **kwargs)
-        if self.status == 'started':
-            if 0 < self.current_turn < self.turn_count:
-                if self.turn_phase == 'talk':
-                    self.turn_phase = 'transaction'
-                else:
-                    self.crown_balance = change_game_parameters(SessionModel, self.id)
-                    self.current_turn += 1
-                    for player in self.player.all():
-                        player.ended_turn = False
-                        player.save()
-                    transaction_denier(self)
-            if self.current_turn == self.turn_count:
-                self.status = 'finished'
-            super().save(*args, **kwargs)
-        if self.status == 'finished':
-            super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -166,7 +97,7 @@ class PlayerModel(models.Model):
         return f'Игрок {self.nickname}'
 
 
-class ProducerModel(models.Model):
+class ProducerModel(PlayerModel):
     player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='producer', null=True, blank=True)
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
     balance = models.IntegerField(default=0)
@@ -191,7 +122,7 @@ class ProducerModel(models.Model):
         super().save(*args, **kwargs)
 
 
-class BrokerModel(models.Model):
+class BrokerModel(PlayerModel):
     player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='broker', null=True, blank=True)
     city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
     balance = models.IntegerField(default=0)
@@ -206,7 +137,7 @@ class BrokerModel(models.Model):
         if self.player is not None:
             return f'Маклер {self.player.nickname}'
         else:
-            return f'Маклер id {self.id}'
+            super().__str__()
 
     def save(self, *args, **kwargs):
         if not self.pk:

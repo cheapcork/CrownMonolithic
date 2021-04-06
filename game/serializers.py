@@ -28,6 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class PlayerSerializer(serializers.ModelSerializer):
 	role_info = serializers.SerializerMethodField('get_role_info')
+
 	class Meta:
 		model = PlayerModel
 		fields = [
@@ -55,38 +56,11 @@ class PlayerSerializer(serializers.ModelSerializer):
 		return role_classes[instance.role]['serializer'](model).data
 
 
-# class PlayerSessionSerializer(serializers.ModelSerializer):
-# 	player = PlayerSerializer(many=True, read_only=True)
-# 	me = serializers.SerializerMethodField('get_my_info')
-# 	class Meta:
-# 		model = SessionModel
-# 		fields = [
-# 			'id',
-# 			'name',
-# 			'game_type',
-# 			'number_of_players',
-# 			'turn_count',
-# 			'status',
-# 			'current_turn',
-# 			'player',
-# 			'me',
-# 		]
-#
-# 	def get_my_info(self, obj):
-# 		role = obj.player.get(pk=self.context['user'].id).role
-# 		if role == 'broker':
-# 			model = BrokerModel.objects.get(user=self.context['user'].id)
-# 			return BrokerSerializer(model).data
-# 		elif role == 'producer':
-# 			model = ProducerModel.objects.get(user=self.context['user'].id)
-# 			return ProducerSerializer(model).data
-# 		return role
-
-
 class SessionLobbySerializer(serializers.ModelSerializer):
 	players = serializers.IntegerField(source='player.count', read_only=True)
 	players_finished_turn = serializers.SerializerMethodField(
 		source='get_players_finished_turn', read_only=True)
+
 	class Meta:
 		model = SessionModel
 		fields = [
@@ -123,8 +97,10 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 	def get_players_finished_turn(self, instance):
 		return instance.player.filter(ended_turn=True).count()
 
+
 class SessionListSerializer(serializers.ModelSerializer):
 	players = serializers.IntegerField(source='player.count', read_only=True)
+
 	class Meta:
 		model = SessionModel
 		fields = [
@@ -145,6 +121,7 @@ class SessionGameSerializer(serializers.ModelSerializer):
 	me = serializers.SerializerMethodField('get_player')
 	players_finished_turn = serializers.SerializerMethodField(
 		source='get_players_finished_turn', read_only=True)
+
 	class Meta:
 		model = SessionModel
 		fields = [
@@ -178,6 +155,7 @@ class SessionGameSerializer(serializers.ModelSerializer):
 
 class ProducerSerializer(serializers.ModelSerializer):
 	transactions = serializers.SerializerMethodField('get_producer_transactions')
+
 	class Meta:
 		model = ProducerModel
 		fields = [
@@ -196,12 +174,11 @@ class ProducerSerializer(serializers.ModelSerializer):
 			'balance',
 			'billets_produced',
 			'billets_stored',
-			'is_bankrupt',
-			'status',
 			'transactions'
 		]
 
-	def get_producer_transactions(self, instance):
+	@staticmethod
+	def get_producer_transactions(instance):
 		transactions = instance.transaction.filter(
 			producer=instance.id,
 			turn=instance.player.session.current_turn
@@ -226,9 +203,10 @@ class BrokerLittleSerializer(serializers.ModelSerializer):
 		]
 
 
-class BrokerFullSerializer(serializers.ModelSerializer):
+class BrokerSerializer(serializers.ModelSerializer):
 	transactions = serializers.SerializerMethodField('get_broker_transactions')
 	crown_balance = serializers.IntegerField(source='player.session.crown_balance')
+
 	class Meta:
 		model = BrokerModel
 		fields = [

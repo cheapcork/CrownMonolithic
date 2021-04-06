@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
 
     path('admin/', admin.site.urls),
-    path('game/', include(game_urls)),
+    path('/', include(game_urls)),
     path('game/', include(router.urls))
 ]
 

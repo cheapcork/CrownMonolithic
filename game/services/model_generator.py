@@ -1,4 +1,4 @@
-from .. import models
+from game import models
 import random
 
 
@@ -20,8 +20,7 @@ def city_generator(players_amount, brokers_amount):
 			cities_for_iter = cities[:brokers_amount]
 
 
-def create_role_models(session_model, session_id):
-	session_instance = session_model.objects.get(id=session_id)
+def generate_role_instances(session_instance):
 	players = session_instance.player.all()
 	city = city_generator(players.count(), session_instance.number_of_brokers)
 

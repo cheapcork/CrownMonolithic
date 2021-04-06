@@ -50,55 +50,43 @@ def save_broker(broker_class_instance, db_broker_model_instance) -> None:
 	return
 
 
-def initialize_session(session_model) -> None:
-	"""
-	Инициализирует игровые настройки для сессии. Работает только для создания сессии
-	"""
-	session_instance = session_model.objects.create()
-	assert session_instance.status == 'initialized'
-
-	if session_instance.game_type == 'normal':
-		if session_instance.number_of_players == '12-14':
-			if not session_instance.number_of_brokers:
-				session_instance.number_of_brokers = 3
-			session_instance.broker_starting_balance = 8000
-			session_instance.producer_starting_balance = 4000
-		elif session_instance.number_of_players == "15-20":
-			if not session_instance.number_of_brokers:
-				session_instance.number_of_brokers = 4
-			session_instance.broker_starting_balance = 12000
-			session_instance.producer_starting_balance = 6000
-		elif session_instance.number_of_players == "21-25":
-			if not session_instance.number_of_brokers:
-				session_instance.number_of_brokers = 5
-			session_instance.broker_starting_balance = 12000
-			session_instance.producer_starting_balance = 6000
-		elif session_instance.number_of_players == "26-30":
-			if not session_instance.number_of_brokers:
-				session_instance.number_of_brokers = 6
-			session_instance.broker_starting_balance = 12000
-			session_instance.producer_starting_balance = 6000
-		elif session_instance.number_of_players == "31-35":
-			if not session_instance.number_of_brokers:
-				session_instance.number_of_brokers = 7
-			session_instance.broker_starting_balance = 12000
-			session_instance.producer_starting_balance = 6000
-	elif session_instance.game_type == 'hard':
-		session_instance.broker_starting_balance = 12000
-		session_instance.producer_starting_balance = 6000
-
-	session_instance.save()
-
-
-def start_session(session_model, session_id: int):
+def start_session(session):
 	"""
 	Запускает сессию. Работает только для созданной сессии.
 	"""
-	session_instance = session_model.objects.get(id=session_id)
-	assert session_instance.pk is not None and session_instance.status == 'created'
+	session_instance = session
 
-	min_players, max_players = session_instance.number_of_players.split('-')
-	assert session_instance.player.count() > int(min_players), 'Not enough players!'
+	number_of_players = session_instance.player.count()
+	if 12 <= number_of_players <= 14:
+		if not session_instance.number_of_brokers:
+			session_instance.number_of_brokers = 3
+		session_instance.broker_starting_balance = 8000
+		session_instance.producer_starting_balance = 4000
+		session_instance.save()
+	elif 15 <= number_of_players <= 20:
+		if not session_instance.number_of_brokers:
+			session_instance.number_of_brokers = 4
+		session_instance.broker_starting_balance = 12000
+		session_instance.producer_starting_balance = 6000
+		session_instance.save()
+	elif 21 <= number_of_players <= 25:
+		if not session_instance.number_of_brokers:
+			session_instance.number_of_brokers = 5
+		session_instance.broker_starting_balance = 12000
+		session_instance.producer_starting_balance = 6000
+		session_instance.save()
+	elif 26 <= number_of_players <= 30:
+		if not session_instance.number_of_brokers:
+			session_instance.number_of_brokers = 6
+		session_instance.broker_starting_balance = 12000
+		session_instance.producer_starting_balance = 6000
+		session_instance.save()
+	elif 31 <= number_of_players <= 35:
+		if not session_instance.number_of_brokers:
+			session_instance.number_of_brokers = 7
+		session_instance.broker_starting_balance = 12000
+		session_instance.producer_starting_balance = 6000
+		session_instance.save()
 
 	distribute_roles(session_instance)
 	generate_role_instances(session_instance)
@@ -121,11 +109,11 @@ def change_phase(session_instance, phase: str) -> None:
 	return
 
 
-def update_game_parameters(session_model, session_id: int) -> None:
+def count_session(session) -> None:
 	"""
 	Пересчитывает параметры игроков внутри указанной сессии.
 	"""
-	session_instance = session_model.objects.get(id=session_id)
+	session_instance = session
 	assert session_instance.pk is not None
 	assert session_instance.status == 'started'
 	assert session_instance.turn_phase == 'transaction'
@@ -203,7 +191,7 @@ def return_started_status(session_instance):
 	return session_instance.status
 
 
-def finish_by_players(session_instance):
+def finish_by_player_count(session_instance):
 	player_count = session_instance.player.count()
 	players_finished_turn = session_instance.player.filter(ended_turn=True).count()
 	if player_count == players_finished_turn:

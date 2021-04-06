@@ -1,12 +1,10 @@
 import random
 
 
-def distribute_roles(session_model, session_id):
+def distribute_roles(session_instance):
 	"""
 	Распределяет роли игроков в сессии
 	"""
-	session_instance = session_model.objects.get(id=session_id)
-
 	players_queryset = session_instance.player.all()
 
 	preassigned_brokers = session_instance.player.filter(role='broker')

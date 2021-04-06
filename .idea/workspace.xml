@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:repo" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:prod" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5cbc5cb7-6bfd-4379-8882-e8a58642b418" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrownMonolithic/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/CrownMonolithic/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/permissions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/broker.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/broker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/hard/business_logic/count_turn.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/hard/business_logic/count_turn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/hard/business_logic/producer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/hard/business_logic/producer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/model_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/model_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/normal/business_logic/broker.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/business_logic/broker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/normal/business_logic/producer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/business_logic/producer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/normal/data_access/count_session.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/data_access/count_session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/normal/data_access/full_session_start.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/data_access/full_session_start.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/normal/data_access/transaction_denier.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/data_access/transaction_denier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/producer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/producer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/questionable/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/questionable/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/role_randomizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/role_randomizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/views.py" afterDir="false" />
+    </list>
+    <list id="abb624ea-1591-41f3-8283-f07e3a0262fd" name="Revert &quot;Немножко рефакторинга DAL и BLL&quot;" comment="Revert &quot;Немножко рефакторинга DAL и BLL&quot;&#10;&#10;This reverts commit 51d6a568" />
+    <list id="1f533241-3391-4eca-89d4-0c596fd913d5" name="Немножко рефакторинга DAL и BLL" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="hiddenUrls">
+      <set>
+        <option value="https://github.com/BeepBoopYeetYourScoot/CrownMonolithic" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectId" id="1pEctC3ex5PycNvB4Y7SDjxGd8G" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="TODO_SCOPE" value="All Places" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\questionable" />
+      <recent name="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\normal\data_access" />
+      <recent name="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services" />
+      <recent name="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\normal\business_logic" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.role_randomizer">
+    <configuration name="count_turn" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrownMonolithic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/game/services" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\normal\business_logic\count_turn.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="mocks" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrownMonolithic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/game/services" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\normal\business_logic\mocks.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="producer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrownMonolithic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/game/services" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\normal\business_logic\producer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="role_randomizer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrownMonolithic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/game/services" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\normal\data_access\role_randomizer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="services_hard" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrownMonolithic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/game/services" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\dima-\PycharmProjects\CrownMonolithic\game\services\services_hard.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="CrownMonolithic" type="Python.DjangoServer" factoryName="Django server">
+      <module name="CrownMonolithic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.role_randomizer" />
+        <item itemvalue="Python.count_turn" />
+        <item itemvalue="Python.producer" />
+        <item itemvalue="Python.services_hard" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5cbc5cb7-6bfd-4379-8882-e8a58642b418" name="Default Changelist" comment="" />
+      <changelist id="1f533241-3391-4eca-89d4-0c596fd913d5" name="Немножко рефакторинга DAL и BLL" comment="" />
+      <created>1614751902937</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1614751902937</updated>
+      <workItem from="1614751953586" duration="10665000" />
+      <workItem from="1614836561160" duration="22073000" />
+      <workItem from="1614862425146" duration="3495000" />
+      <workItem from="1614922888817" duration="24340000" />
+      <workItem from="1614952275536" duration="1813000" />
+      <workItem from="1615278078113" duration="1265000" />
+      <workItem from="1615291900919" duration="1562000" />
+      <workItem from="1615365521564" duration="19000" />
+      <workItem from="1615365564138" duration="625000" />
+      <workItem from="1615392540092" duration="4250000" />
+      <workItem from="1615454251300" duration="8388000" />
+      <workItem from="1615535861640" duration="22835000" />
+      <workItem from="1615794458616" duration="10228000" />
+      <workItem from="1615875966733" duration="16820000" />
+      <workItem from="1615896231908" duration="5802000" />
+      <workItem from="1615975457175" duration="13506000" />
+      <workItem from="1616051245014" duration="16892000" />
+      <workItem from="1616135013538" duration="8399000" />
+      <workItem from="1616168291448" duration="1326000" />
+      <workItem from="1616325461567" duration="2670000" />
+      <workItem from="1616394753608" duration="18305000" />
+      <workItem from="1616414004451" duration="7793000" />
+      <workItem from="1616476853788" duration="3816000" />
+      <workItem from="1616498019210" duration="5821000" />
+      <workItem from="1616564449901" duration="1768000" />
+      <workItem from="1616652969565" duration="1437000" />
+      <workItem from="1616745657488" duration="1234000" />
+      <workItem from="1616757207284" duration="24000" />
+      <workItem from="1617197256010" duration="4767000" />
+      <workItem from="1617342471548" duration="21361000" />
+      <workItem from="1617601482250" duration="9434000" />
+      <workItem from="1617624343748" duration="1829000" />
+      <workItem from="1617691643138" duration="11602000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="prod" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="User">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="*" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="552" y="178" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1615990090990">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="552" y="178" key="#com.intellij.execution.impl.EditConfigurationsDialog/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1615990090990" />
+    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1617707182225">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1617707182225" />
+    <state x="2009" y="14" key="CommitChangelistDialog2" timestamp="1616503098717">
+      <screen x="1920" y="-372" width="1050" height="1640" />
+    </state>
+    <state x="2009" y="14" key="CommitChangelistDialog2/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1616503098717" />
+    <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1616564514607">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="740" y="275" key="FileChooserDialogImpl/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616564514607" />
+    <state width="1877" height="214" key="GridCell.Tab.0.bottom" timestamp="1616413869002">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="214" key="GridCell.Tab.0.bottom/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616413869002" />
+    <state width="1877" height="313" key="GridCell.Tab.0.bottom/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1615568569410" />
+    <state width="1877" height="214" key="GridCell.Tab.0.center" timestamp="1616413869002">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="214" key="GridCell.Tab.0.center/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616413869002" />
+    <state width="1877" height="313" key="GridCell.Tab.0.center/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1615568569410" />
+    <state width="1877" height="214" key="GridCell.Tab.0.left" timestamp="1616413869002">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="214" key="GridCell.Tab.0.left/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616413869002" />
+    <state width="1877" height="313" key="GridCell.Tab.0.left/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1615568569410" />
+    <state width="1877" height="214" key="GridCell.Tab.0.right" timestamp="1616413869002">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="214" key="GridCell.Tab.0.right/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616413869002" />
+    <state width="1877" height="313" key="GridCell.Tab.0.right/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1615568569410" />
+    <state width="1877" height="348" key="GridCell.Tab.1.bottom" timestamp="1614952074119">
+      <screen x="1920" y="16" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1614952074119" />
+    <state width="1877" height="348" key="GridCell.Tab.1.center" timestamp="1614952074119">
+      <screen x="1920" y="16" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="348" key="GridCell.Tab.1.center/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1614952074119" />
+    <state width="1877" height="348" key="GridCell.Tab.1.left" timestamp="1614952074119">
+      <screen x="1920" y="16" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="348" key="GridCell.Tab.1.left/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1614952074119" />
+    <state width="1877" height="348" key="GridCell.Tab.1.right" timestamp="1614952074119">
+      <screen x="1920" y="16" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="348" key="GridCell.Tab.1.right/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1614952074119" />
+    <state x="439" y="148" key="SettingsEditor" timestamp="1616566149009">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="439" y="148" key="SettingsEditor/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616566149009" />
+    <state x="439" y="148" key="SettingsEditor/0.0.1920.1040/1920.-372.1050.1640/-1920.-15.1920.1040@0.0.1920.1040" timestamp="1615806543026" />
+    <state x="2292" y="362" key="VCS.ChangelistChooser" timestamp="1616503110774">
+      <screen x="1920" y="-372" width="1050" height="1640" />
+    </state>
+    <state x="2292" y="362" key="VCS.ChangelistChooser/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1616503110774" />
+    <state x="1872" y="-399" width="1066" height="817" maximized="true" key="dock-window-1" timestamp="1616052297291">
+      <screen x="1920" y="-372" width="1050" height="1640" />
+    </state>
+    <state x="1872" y="-399" width="1066" height="817" maximized="true" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616052297291" />
+    <state x="793" y="-8" width="754" height="1127" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1615896558309" />
+    <state x="3816" y="-382" width="1066" height="840" maximized="true" key="dock-window-1/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1615462851144" />
+    <state x="1907" y="-393" width="1066" height="817" maximized="true" key="dock-window-2" timestamp="1616054481641">
+      <screen x="1920" y="-372" width="1050" height="1640" />
+    </state>
+    <state x="1907" y="-393" width="1066" height="817" maximized="true" key="dock-window-2/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616054481641" />
+    <state x="1932" y="-386" width="1066" height="817" maximized="true" key="dock-window-3" timestamp="1616056481492">
+      <screen x="1920" y="-372" width="1050" height="1640" />
+    </state>
+    <state x="1932" y="-386" width="1066" height="817" maximized="true" key="dock-window-3/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616056481492" />
+    <state x="1896" y="-391" width="1066" height="817" maximized="true" key="dock-window-4" timestamp="1616062117631">
+      <screen x="1920" y="-372" width="1050" height="1640" />
+    </state>
+    <state x="1896" y="-391" width="1066" height="817" maximized="true" key="dock-window-4/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616062117631" />
+    <state x="2219" y="342" key="git4idea.ui.GitResetDialog" timestamp="1616502866246">
+      <screen x="1920" y="-372" width="1050" height="1640" />
+    </state>
+    <state x="2219" y="342" key="git4idea.ui.GitResetDialog/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1616502866246" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1617616036495">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1617616036495" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/1920.-372.1050.1640/-1920.-15.1920.1040@0.0.1920.1040" timestamp="1615806541253" />
+    <state x="2543" y="241" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1614930298065" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/CrownMonolithic$services.coverage" NAME="services Coverage Results" MODIFIED="1614859854990" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/game/services" />
+    <SUITE FILE_PATH="coverage/CrownMonolithic$services_normal_mocks.coverage" NAME="services_normal_mocks Coverage Results" MODIFIED="1616054122581" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/game/services" />
+    <SUITE FILE_PATH="coverage/CrownMonolithic$manufacturer.coverage" NAME="manufacturer Coverage Results" MODIFIED="1614865806316" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/game/services" />
+    <SUITE FILE_PATH="coverage/CrownMonolithic$services_normal.coverage" NAME="services_normal Coverage Results" MODIFIED="1615564826539" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/game/services" />
+    <SUITE FILE_PATH="coverage/CrownMonolithic$role_randomizer.coverage" NAME="role_randomizer Coverage Results" MODIFIED="1616400290568" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/game/services" />
+  </component>
+</project>

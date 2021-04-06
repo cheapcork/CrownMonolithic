@@ -1,8 +1,9 @@
 from django.apps import AppConfig
-from django.db.models.signals import post_save
+
 
 class GameConfig(AppConfig):
-    name = 'game'
+	name = 'game'
 
-    def ready(self):
-        import game.signals
+	# FIXME Что это?
+	def ready(self):
+		pass
