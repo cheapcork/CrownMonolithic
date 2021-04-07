@@ -27,12 +27,10 @@ def generate_role_instances(session_instance):
 	for player in players:
 		if player.role == 'producer':
 			models.ProducerModel.objects.create(
-				player=player,
 				city=next(city),
 			).save()
 		else:
 			models.BrokerModel.objects.create(
-				player=player,
 				city=next(city),
 			).save()
 	del city

@@ -78,8 +78,6 @@ class SessionModel(models.Model):
 
 
 class PlayerModel(models.Model):
-    user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, related_name='player',
-                             verbose_name='Пользователь', null=True)
     session = models.ForeignKey(SessionModel, on_delete=models.CASCADE,
                                 related_name='player', verbose_name='Сессия', default=0)
     nickname = models.CharField(max_length=100, verbose_name='Никнейм', default='')
@@ -88,6 +86,10 @@ class PlayerModel(models.Model):
     position = models.PositiveSmallIntegerField(verbose_name='Место', default=0,
                                                 editable=False)
     ended_turn = models.BooleanField(default=False)
+    city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение', default='unassigned')
+    balance = models.IntegerField(default=0)
+    is_bankrupt = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
 
     class Meta:
         verbose_name = 'Игрок'
@@ -98,50 +100,43 @@ class PlayerModel(models.Model):
 
 
 class ProducerModel(PlayerModel):
-    player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='producer', null=True, blank=True)
-    city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
-    balance = models.IntegerField(default=0)
+    # player = models.OneToOneField(PlayerModel, on_delete=models.CASCADE, parent_link=True, primary_key=False)
     billets_produced = models.IntegerField(default=0)
     billets_stored = models.IntegerField(default=0)
-    is_bankrupt = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
 
     class Meta:
         verbose_name = 'Производитель'
         verbose_name_plural = 'Производители'
 
     def __str__(self):
-        if self.player is not None:
-            return f'Производитель {self.player.nickname}'
+        if self.pk is not None:
+            return f'Производитель {self.nickname}'
         else:
-            return f'Производитель id {self.id}'
+            return f'Производитель id {self.pk}'
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.balance = self.player.session.producer_starting_balance
+            self.balance = self.player.session.broker_starting_balance
         super().save(*args, **kwargs)
 
 
 class BrokerModel(PlayerModel):
-    player = models.ForeignKey(PlayerModel, on_delete=models.SET_NULL, related_name='broker', null=True, blank=True)
-    city = models.CharField(max_length=20, choices=CITIES, verbose_name='Расположение')
-    balance = models.IntegerField(default=0)
-    is_bankrupt = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
+    # player = models.OneToOneField(PlayerModel, on_delete=models.CASCADE, parent_link=True, primary_key=False)
 
     class Meta:
         verbose_name = 'Маклер'
         verbose_name_plural = 'Маклеры'
 
     def __str__(self):
-        if self.player is not None:
-            return f'Маклер {self.player.nickname}'
+        if self.pk is not None:
+            return f'Маклер {self.nickname}'
         else:
             super().__str__()
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.balance = self.player.session.broker_starting_balance
+            # print('BROKER SHIT ACTUALLY WORKS')
+            self.balance = self.session.broker_starting_balance
         super().save(*args, **kwargs)
 
 
@@ -160,8 +155,8 @@ class TransactionModel(models.Model):
         verbose_name_plural = 'Транзакции'
 
     def __str__(self):
-        if self.producer.player is not None and self.broker.player is not None:
-            return f'Сделка в сессии {self.session.name} между {self.producer.player.nickname} ' \
+        if self.producer is not None and self.broker is not None:
+            return f'Сделка в сессии {self.session.name} между {self.producer.nickname} ' \
                f'и {self.broker.player.nickname}'
         else:
             return f'Сделка в сессии {self.session.name} между id {self.producer.id} и id {self.broker.id}'
