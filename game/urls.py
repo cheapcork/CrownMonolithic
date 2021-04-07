@@ -10,18 +10,7 @@ from . import views
 #  - Подгрузка окна сделки и отправка сделки производителем
 
 urlpatterns = [
-	# path('session/', views.SessionAdminViewSet)
-	# path('/'),
-	# path('map/'),
-	# path('negotiation/'),
-	# path('trade/'),
-	# path('join/<session_pk>/', views.join_session_view),
-# 	path('count_turn/<pk>/', views.count_turn_view),
-# 	path('leave/', views.leave_session_view),
-# 	path('end_turn/', views.end_turn),
-# 	path('cancel_end_turn/', views.cancel_end_turn),
-# 	path('produce/', views.produce),
-# 	path('is_started/<session_pk>/', views.is_started),
-# 	path('user/me/', views.get_user_me),
-#
+	path('lobby/join/<pk>/', ),
+	path('lobby/leave/', ),
+	path('lobby/detail/', )
 ]

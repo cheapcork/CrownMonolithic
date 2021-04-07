@@ -67,7 +67,6 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 			'id',
 			'name',
 			'game_type',
-			'number_of_players',
 			'turn_count',
 			'number_of_brokers',
 			'crown_balance',

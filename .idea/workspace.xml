@@ -26,24 +26,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5cbc5cb7-6bfd-4379-8882-e8a58642b418" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CrownMonolithic/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/CrownMonolithic/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authorization/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/authorization/migrations/0002_auto_20210319_1007.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/authorization/migrations/0003_delete_usermodel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0002_auto_20210317_1521.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0003_auto_20210318_1400.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0004_auto_20210318_1508.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0005_auto_20210319_1007.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0006_auto_20210322_1614.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0007_auto_20210324_0858.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0008_auto_20210406_1437.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/migrations/0009_auto_20210406_2244.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/game/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/permissions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/broker.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/broker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/hard/business_logic/count_turn.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/hard/business_logic/count_turn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/hard/business_logic/producer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/hard/business_logic/producer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game/services/model_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/model_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/normal/business_logic/broker.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/business_logic/broker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/normal/business_logic/producer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/business_logic/producer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game/services/normal/data_access/count_session.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/data_access/count_session.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/normal/data_access/full_session_start.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/data_access/full_session_start.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/normal/data_access/transaction_denier.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/data_access/transaction_denier.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/producer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/producer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/services/questionable/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/questionable/signals.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game/services/role_randomizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/role_randomizer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/views.py" afterDir="false" />
@@ -288,6 +288,8 @@
       <workItem from="1617601482250" duration="9434000" />
       <workItem from="1617624343748" duration="1829000" />
       <workItem from="1617691643138" duration="11602000" />
+      <workItem from="1617721667607" duration="187000" />
+      <workItem from="1617773578683" duration="20351000" />
     </task>
     <servers />
   </component>
@@ -395,10 +397,10 @@
       <screen x="1920" y="-372" width="1050" height="1640" />
     </state>
     <state x="2292" y="362" key="VCS.ChangelistChooser/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1616503110774" />
-    <state x="1872" y="-399" width="1066" height="817" maximized="true" key="dock-window-1" timestamp="1616052297291">
-      <screen x="1920" y="-372" width="1050" height="1640" />
+    <state x="407" y="-8" width="768" height="798" maximized="true" key="dock-window-1" timestamp="1617785698511">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="1872" y="-399" width="1066" height="817" maximized="true" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1616052297291" />
+    <state x="407" y="-8" width="768" height="798" maximized="true" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1617785698511" />
     <state x="793" y="-8" width="754" height="1127" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1615896558309" />
     <state x="3816" y="-382" width="1066" height="840" maximized="true" key="dock-window-1/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1615462851144" />
     <state x="1907" y="-393" width="1066" height="817" maximized="true" key="dock-window-2" timestamp="1616054481641">
@@ -417,10 +419,10 @@
       <screen x="1920" y="-372" width="1050" height="1640" />
     </state>
     <state x="2219" y="342" key="git4idea.ui.GitResetDialog/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1616502866246" />
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1617616036495">
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1617781117852">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1617616036495" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1617781117852" />
     <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/1920.-372.1050.1640/-1920.-15.1920.1040@0.0.1920.1040" timestamp="1615806541253" />
     <state x="2543" y="241" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1614930298065" />
   </component>
