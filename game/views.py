@@ -2,7 +2,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.renderers import JSONRenderer
 from .models import SessionModel, PlayerModel, ProducerModel, TransactionModel, BrokerModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -38,7 +37,7 @@ class SessionAdminViewSet(ModelViewSet):
 		start_session(session)
 		return Response({'detail': 'Session started'}, status=status.HTTP_200_OK)
 
-	@action(methods=['GET', 'PUT'], detail=True, url_path='set-turn-phase', permission_classes=[])
+	@action(methods=['PUT'], detail=True, url_path='set-turn-phase', permission_classes=[])
 	def set_turn_phase(self, request, pk):
 		"""
 		Устанавливает фазу хода в сессии
@@ -68,7 +67,7 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 	"""
 	queryset = SessionModel.objects.all()
 	serializer_class = serializers.LobbySerializer
-	permission_classes = [IsAuthenticated]
+	# permission_classes = [IsAuthenticated]
 
 	def list(self, request, *args, **kwargs):
 		"""
@@ -93,7 +92,7 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 			status=status.HTTP_200_OK
 		)
 
-	@action(methods=['post'], detail=True, url_path='join', permission_classes=[])
+	@action(methods=['post'], detail=True, url_path='join')
 	def join_session(self, request, pk):
 		"""
 		Даёт игроку авторизоваться и присоединиться к сессии
@@ -102,14 +101,24 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 		assert session_instance.status == 'initialized'
 		nickname = request.data.get('nickname')
 		create_player(session_instance, nickname)
-		return Response({'detail': f'Player {nickname} successfully created', 'player': serializers.PlayerSerializer(PlayerModel.objects.get(session_id=pk, nickname=nickname)).data}, status=status.HTTP_201_CREATED)
+		return Response(
+			{
+				'detail': f'Player {nickname} successfully created',
+				'player': serializers.PlayerSerializer(PlayerModel.objects.get(session_id=pk, nickname=nickname)).data},
+			status=status.HTTP_201_CREATED
+		)
 
 	@action(methods=['delete'], detail=True, url_path='leave')
-	def leave_session(self, request):
+	def leave_session(self, request, pk):
 		"""
 		Выкидывает игрока из сессии
 		"""
-		pass
+		session_instance = SessionModel.objects.get(pk=pk)
+		player_id = request.data.get('id')
+		player = PlayerModel.objects.get(pk=player_id, session_id=pk)
+		assert player.session.id == session_instance.id, "Вы не в той сессии"
+		player.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
