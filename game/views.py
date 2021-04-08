@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from . import serializers
 from .permissions import IsInSession, IsThePlayer
 from rest_framework.decorators import action
-from game.services.normal.data_access.count_session import change_phase, start_session, count_session, create_player
+from game.services.normal.data_access.count_session import change_phase, start_session, count_session, create_player, \
+	produce_billets, send_trade, cancel_trade
 
 from django.template import loader
 from django.http import HttpResponse
@@ -171,25 +172,67 @@ class PlayerViewSet(viewsets.ModelViewSet):
 class ProducerViewSet(ModelViewSet):
 	queryset = ProducerModel.objects.all()
 	serializer_class = serializers.ProducerSerializer
-	permission_classes = [IsInSession]
+	# permission_classes = [IsInSession]
 
-	# @action(methods=['POST'], detail=True, permission_classes=[IsThePlayer])
-	# def produce(self, request):
-	# 	"""
-	# 	Отправляет запрос на производство
-	# 	"""
-	# 	try:
-	# 		producer = ProducerModel.objects.get(player=request.user.player.get())
-	# 	except PlayerModel.DoesNotExist:
-	# 		return Response({'detail': 'You are not in session!'}, status=status.HTTP_400_BAD_REQUEST)
-	# 	except ProducerModel.DoesNotExist:
-	# 		return Response({'detail': 'You are not a producer!'}, status=status.HTTP_400_BAD_REQUEST)
-	# 	# if producer.player.session.turn
-	# 	if producer.billets_produced != 0:
-	# 		return Response({'detail': 'You\'ve already produced at this turn'}, status=status.HTTP_400_BAD_REQUEST)
-	# 	producer.billets_produced = request.data['produce']
-	# 	producer.save()
-	# 	return Response(status=status.HTTP_201_CREATED)
+	# permission_classes = [IsThePlayer]
+	@action(methods=['POST'], detail=True)
+	def produce(self, request, pk):
+		"""
+		Отправляет запрос на производство заготовок
+		"""
+		producer = ProducerModel.objects.get(player_id=pk)
+		quantity = request.data.get('quantity')
+		produce_billets(producer, quantity)
+		return Response(
+			{
+				'detail': f'Произведено {quantity} заготовок для производителя {producer.player.nickname}.',
+				'stash': serializers.ProducerSerializer(producer).data
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['POST'], detail=True)
+	def trade(self, request, pk):
+		"""
+		Отправляет маклеру предложение о сделке
+		"""
+		producer = ProducerModel.objects.get(player_id=pk)
+		broker = BrokerModel.objects.get(player_id=request.data.get('broker'))
+		terms = request.data.get('terms')
+		send_trade(producer, broker, terms)
+		return Response(
+			{
+				'detail': f'Отправлена сделка от {producer.player.nickname} к {broker.player.nickname}',
+				'terms': terms
+			},
+			status=status.HTTP_201_CREATED
+		)
+
+	@action(methods=['delete'], detail=True, url_path='cancel-trade')
+	def cancel_trade(self, request, pk):
+		"""
+		Отменяет сделку с маклером
+		"""
+		producer = ProducerModel.objects.get(player_id=pk)
+		broker = BrokerModel.objects.get(player_id=request.data.get('broker'))
+		cancel_trade(producer, broker)
+		return Response(
+			{
+				'detail': f'Сделка между {producer.player.nickname} и {broker.player.nickname} отменена'
+			},
+			status=status.HTTP_204_NO_CONTENT
+		)
+
+	@action(detail=True)
+	def me(self, request, pk):
+		"""
+		Отправляет полные данные о текущем игроке
+		"""
+		producer = PlayerModel.objects.get(id=pk)
+		return Response(
+				serializers.FullProducerInfoSerializer(producer).data,
+			status=status.HTTP_200_OK
+		)
 
 
 class BrokerViewSet(ModelViewSet):

@@ -106,42 +106,6 @@ class PlayerSerializer(serializers.ModelSerializer):
 		return roles[player_instance.role]['serializer'](model).data
 
 
-# class SessionGameSerializer(serializers.ModelSerializer):
-# 	me = serializers.SerializerMethodField('get_player')
-# 	players_finished_turn = serializers.SerializerMethodField(
-# 		source='get_players_finished_turn', read_only=True)
-#
-# 	class Meta:
-# 		model = SessionModel
-# 		fields = [
-# 			'id',
-# 			'name',
-# 			'status',
-# 			'current_turn',
-# 			'turn_phase',
-# 			'me',
-# 			'players_finished_turn'
-# 		]
-# 		read_only = [
-# 			'id',
-# 			'name',
-# 			'status',
-# 			'current_turn',
-# 			'turn_phase',
-# 			'me',
-# 			'players_finished_turn'
-# 		]
-#
-# 	def get_player(self, instance):
-# 		player = instance.player.filter(user=self.context['user'].id)
-# 		if player.exists():
-# 			return PlayerSerializer(player.get(), many=False).data
-# 		return "You are not in this session!"
-#
-# 	def get_players_finished_turn(self, instance):
-# 		return instance.player.filter(ended_turn=True).count()
-
-
 class ProducerSerializer(serializers.ModelSerializer):
 	transactions = serializers.SerializerMethodField('get_producer_transactions')
 
@@ -214,3 +178,35 @@ class TransactionSerializer(serializers.ModelSerializer):
 				'required': False,
 			}
 		}
+
+
+class FullProducerInfoSerializer(serializers.ModelSerializer):
+	"""
+	Выдаёт полную информацию об игроке-производителе
+	"""
+	stash_info = serializers.SerializerMethodField(source='get_stash_info', read_only=True)
+
+	class Meta:
+		model = PlayerModel
+		fields = [
+			'id',
+			'nickname',
+			'role',
+			'city',
+			'balance',
+			'is_bankrupt',
+			'ended_turn',
+			'status',
+			'stash_info'
+		]
+
+	@staticmethod
+	def get_stash_info(instance):
+		"""
+		Добавляет к сериализатору игрока-производителя информацию о хранилище
+		"""
+		stash = ProducerSerializer(
+			instance.producer
+		).data
+		# fields('billets_produced', 'billets_stored')
+		return stash

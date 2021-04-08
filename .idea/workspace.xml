@@ -26,8 +26,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5cbc5cb7-6bfd-4379-8882-e8a58642b418" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/services/normal/data_access/count_session.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/services/normal/data_access/count_session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/game/views.py" afterDir="false" />
     </list>
     <list id="abb624ea-1591-41f3-8283-f07e3a0262fd" name="Revert &quot;Немножко рефакторинга DAL и BLL&quot;" comment="Revert &quot;Немножко рефакторинга DAL и BLL&quot;&#10;&#10;This reverts commit 51d6a568" />
     <list id="1f533241-3391-4eca-89d4-0c596fd913d5" name="Немножко рефакторинга DAL и BLL" comment="" />
@@ -271,7 +275,7 @@
       <workItem from="1617691643138" duration="11602000" />
       <workItem from="1617721667607" duration="187000" />
       <workItem from="1617773578683" duration="20419000" />
-      <workItem from="1617862921915" duration="9522000" />
+      <workItem from="1617862921915" duration="18752000" />
     </task>
     <servers />
   </component>
@@ -379,10 +383,10 @@
       <screen x="1920" y="-372" width="1050" height="1640" />
     </state>
     <state x="2292" y="362" key="VCS.ChangelistChooser/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1616503110774" />
-    <state x="407" y="-8" width="768" height="798" maximized="true" key="dock-window-1" timestamp="1617785698511">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="1833" y="-380" width="1589" height="753" maximized="true" key="dock-window-1" timestamp="1617880702104">
+      <screen x="1920" y="-372" width="1050" height="1640" />
     </state>
-    <state x="407" y="-8" width="768" height="798" maximized="true" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1617785698511" />
+    <state x="1833" y="-380" width="1589" height="753" maximized="true" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@0.0.1920.1040" timestamp="1617880702104" />
     <state x="793" y="-8" width="754" height="1127" key="dock-window-1/-1920.-15.1920.1040/1920.-372.1050.1640/0.0.1920.1040@1920.-372.1050.1640" timestamp="1615896558309" />
     <state x="3816" y="-382" width="1066" height="840" maximized="true" key="dock-window-1/0.0.1920.1040/3840.-357.1050.1640/1920.16.1920.1040@1920.16.1920.1040" timestamp="1615462851144" />
     <state x="1907" y="-393" width="1066" height="817" maximized="true" key="dock-window-2" timestamp="1616054481641">

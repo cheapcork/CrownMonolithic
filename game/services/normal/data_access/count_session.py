@@ -1,4 +1,4 @@
-from game.models import PlayerModel
+from game.models import PlayerModel, TransactionModel
 from ..business_logic.count_turn import count_turn
 from ..business_logic.producer import ProducerNormal
 from ..business_logic.broker import BrokerNormal
@@ -67,6 +67,7 @@ def start_session(session):
 	Запускает сессию. Работает только для созданной сессии.
 	"""
 	session_instance = session
+	assert session_instance.status == 'initialized'
 
 	number_of_players = session_instance.player.count()
 	if 12 <= number_of_players <= 14:
@@ -194,17 +195,24 @@ def count_session(session) -> None:
 
 
 def finish_session(session_instance):
+	"""
+	Завершает запущенную сессию
+	"""
+	assert session_instance.status == 'started', 'Сессия не запущена'
 	session_instance.status = 'finished'
 	session_instance.save()
 	return
 
 
-def return_started_status(session_instance):
-	assert session_instance.pk is not None
-	return session_instance.status
+# def return_started_status(session_instance):
+# 	assert session_instance.pk is not None
+# 	return session_instance.status
 
 
 def finish_by_player_count(session_instance):
+	"""
+	Автоматически завершает ход, если все нажали 'Закончить ход'
+	"""
 	player_count = session_instance.player.count()
 	players_finished_turn = session_instance.player.filter(ended_turn=True).count()
 	if player_count == players_finished_turn:
@@ -218,4 +226,37 @@ def create_player(session_instance, nickname):
 	"""
 	player = PlayerModel.objects.create(session_id=session_instance.id, nickname=nickname)
 	player.save()
+	return
+
+
+def produce_billets(producer, quantity):
+	"""
+	Отправляет заявку на производство заготовок
+	"""
+	producer.billets_produced = quantity
+	producer.save()
+	return
+
+
+def send_trade(producer, broker, terms):
+	"""
+	Отправляет сделку маклеру
+	"""
+	TransactionModel.objects.create(
+		producer_id=producer.id,
+		broker_id=broker.id,
+		quantity=terms['quantity'],
+		price=terms['price'],
+	).save()
+	return
+
+
+def cancel_trade(producer, broker):
+	"""
+	Отменяет сделку с маклером
+	"""
+	TransactionModel.objects.get(
+		producer_id=producer.id,
+		broker_id=broker.id,
+	).delete()
 	return
