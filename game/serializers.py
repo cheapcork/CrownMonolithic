@@ -1,70 +1,39 @@
 from rest_framework import serializers
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
-from django.contrib.auth.models import User
 
 
-class UserSerializer(serializers.ModelSerializer):
-	player = serializers.SerializerMethodField('get_player')
-
-	class Meta:
-		model = User
-		fields = [
-			'id',
-			'username',
-			'player',
-		]
-		read_only = [
-			'id',
-			'username',
-			'player',
-		]
-
-	def get_player(self, instance):
-		try:
-			return PlayerSerializer(instance.player.get(), many=False).data
-		except PlayerModel.DoesNotExist:
-			return None
-
-
-class PlayerSerializer(serializers.ModelSerializer):
-	role_info = serializers.SerializerMethodField('get_role_info')
+class LobbySerializer(serializers.ModelSerializer):
+	"""
+	Сериализатор для юзерского вида списка сессий
+	"""
+	player_count = serializers.IntegerField(source='player.count', read_only=True)
 
 	class Meta:
-		model = PlayerModel
+		model = SessionModel
 		fields = [
 			'id',
-			'user',
-			'nickname',
-			'role',
-			'role_info',
-			'session',
-			'user',
+			'name',
+			'game_type',
+			'status',
+			'player_count'
 		]
 		read_only = [
-			'id',
+			'__all__',
+			'player_count'
 		]
 
-	def get_role_info(self, instance):
-		role_classes = {
-			'broker': {'model': BrokerModel, 'serializer': BrokerFullSerializer},
-			'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
-		}
-		if instance.role == 'unassigned':
-			return 'unassigned'
 
-		model = role_classes[instance.role]['model'].objects.get(player=instance.id)
-		return role_classes[instance.role]['serializer'](model).data
-
-
-class SessionLobbySerializer(serializers.ModelSerializer):
-	players = serializers.IntegerField(source='player.count', read_only=True)
+class SessionAdminSerializer(serializers.ModelSerializer):
+	"""
+	Сериализатор для администрирования запущенных сессий
+	"""
+	player_count = serializers.IntegerField(source='player.count', read_only=True)
 	players_finished_turn = serializers.SerializerMethodField(
 		source='get_players_finished_turn', read_only=True)
 
 	class Meta:
 		model = SessionModel
 		fields = [
-			'id',
 			'name',
 			'game_type',
 			'turn_count',
@@ -76,80 +45,100 @@ class SessionLobbySerializer(serializers.ModelSerializer):
 			'transaction_limit',
 			'current_turn',
 			'turn_phase',
-			'players',
+			'player_count',
 			'players_finished_turn',
 		]
 		read_only = [
-			'id',
-			'game_type',
-			'number_of_brokers',
-			'players',
-			'players_finished_turn',
+			'__all__',
+			# 'player_count',
+			# 'players_finished_turn',
 		]
 
-	def get_session_players(self, instance):
+	@staticmethod
+	def get_session_player_count(instance):
 		return PlayerSerializer(
 			instance.player.all(),
 			many=True
 		)
 
-	def get_players_finished_turn(self, instance):
+	@staticmethod
+	def get_players_finished_turn(instance):
 		return instance.player.filter(ended_turn=True).count()
 
 
-class SessionListSerializer(serializers.ModelSerializer):
-	players = serializers.IntegerField(source='player.count', read_only=True)
+class PlayerSerializer(serializers.ModelSerializer):
+	"""
+	Сериализатор для игрока
+	"""
+	role_info = serializers.SerializerMethodField('get_role_info')
 
 	class Meta:
-		model = SessionModel
+		model = PlayerModel
 		fields = [
-			'id',
-			'name',
+			'session',
+			'nickname',
+			'role',
+			'city',
+			'balance',
+			'ended_turn',
+			'is_bankrupt',
 			'status',
-			'players'
+			'position',
+			'role_info',
 		]
 		read_only = [
 			'id',
-			'name',
 			'status',
-			'players'
+			'position'
 		]
 
+	@staticmethod
+	def get_role_info(player_instance):
+		roles = {
+			'broker': {'model': BrokerModel, 'serializer': BrokerSerializer},
+			'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
+		}
+		if player_instance.role == 'unassigned':
+			return 'unassigned'
 
-class SessionGameSerializer(serializers.ModelSerializer):
-	me = serializers.SerializerMethodField('get_player')
-	players_finished_turn = serializers.SerializerMethodField(
-		source='get_players_finished_turn', read_only=True)
+		model = roles[player_instance.role]['model'].objects.get(player=player_instance.id)
+		return roles[player_instance.role]['serializer'](model).data
 
-	class Meta:
-		model = SessionModel
-		fields = [
-			'id',
-			'name',
-			'status',
-			'current_turn',
-			'turn_phase',
-			'me',
-			'players_finished_turn'
-		]
-		read_only = [
-			'id',
-			'name',
-			'status',
-			'current_turn',
-			'turn_phase',
-			'me',
-			'players_finished_turn'
-		]
 
-	def get_player(self, instance):
-		player = instance.player.filter(user=self.context['user'].id)
-		if player.exists():
-			return PlayerSerializer(player.get(), many=False).data
-		return "You are not in this session!"
-
-	def get_players_finished_turn(self, instance):
-		return instance.player.filter(ended_turn=True).count()
+# class SessionGameSerializer(serializers.ModelSerializer):
+# 	me = serializers.SerializerMethodField('get_player')
+# 	players_finished_turn = serializers.SerializerMethodField(
+# 		source='get_players_finished_turn', read_only=True)
+#
+# 	class Meta:
+# 		model = SessionModel
+# 		fields = [
+# 			'id',
+# 			'name',
+# 			'status',
+# 			'current_turn',
+# 			'turn_phase',
+# 			'me',
+# 			'players_finished_turn'
+# 		]
+# 		read_only = [
+# 			'id',
+# 			'name',
+# 			'status',
+# 			'current_turn',
+# 			'turn_phase',
+# 			'me',
+# 			'players_finished_turn'
+# 		]
+#
+# 	def get_player(self, instance):
+# 		player = instance.player.filter(user=self.context['user'].id)
+# 		if player.exists():
+# 			return PlayerSerializer(player.get(), many=False).data
+# 		return "You are not in this session!"
+#
+# 	def get_players_finished_turn(self, instance):
+# 		return instance.player.filter(ended_turn=True).count()
 
 
 class ProducerSerializer(serializers.ModelSerializer):
@@ -158,22 +147,13 @@ class ProducerSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ProducerModel
 		fields = [
-			'id',
-			'city',
-			'balance',
+			'player',
 			'billets_produced',
 			'billets_stored',
-			'is_bankrupt',
-			'status',
 			'transactions'
 		]
 		read_only = [
-			'id',
-			'city',
-			'balance',
-			'billets_produced',
-			'billets_stored',
-			'transactions'
+			'player'
 		]
 
 	@staticmethod
@@ -185,47 +165,13 @@ class ProducerSerializer(serializers.ModelSerializer):
 		return TransactionSerializer(transactions, many=True).data
 
 
-class BrokerLittleSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = BrokerModel
-		fields = [
-			'id',
-			'player',
-			'city',
-			'is_bankrupt',
-		]
-		read_only = [
-			'id',
-			'player',
-			'city',
-			'is_bankrupt',
-		]
-
-
 class BrokerSerializer(serializers.ModelSerializer):
 	transactions = serializers.SerializerMethodField('get_broker_transactions')
-	crown_balance = serializers.IntegerField(source='player.session.crown_balance')
 
 	class Meta:
 		model = BrokerModel
-		fields = [
-			'id',
-			'city',
-			'balance',
-			'crown_balance',
-			'is_bankrupt',
-			'status',
-			'transactions',
-		]
-		read_only = [
-			'id',
-			'city',
-			'balance',
-			'crown_balance',
-			'is_bankrupt',
-			'status',
-			'transactions',
-		]
+		fields = '__all__'
+		read_only = '__all__'
 
 	# FIXME: optimize me, please
 	def get_broker_transactions(self, instance):
@@ -255,17 +201,7 @@ class BrokerSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TransactionModel
-		fields = [
-			'id',
-			'session',
-			'producer',
-			'broker',
-			'quantity',
-			'price',
-			'transporting_cost',
-			'turn',
-			'status'
-		]
+		fields = '__all__'
 		read_only = [
 			'id',
 			'session',

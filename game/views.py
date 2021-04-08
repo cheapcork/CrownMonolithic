@@ -6,8 +6,7 @@ from rest_framework.decorators import api_view, renderer_classes, permission_cla
 from rest_framework.renderers import JSONRenderer
 from .models import SessionModel, PlayerModel, ProducerModel, TransactionModel, BrokerModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from .serializers import SessionGameSerializer, SessionLobbySerializer, PlayerSerializer, SessionListSerializer, \
-	TransactionSerializer, UserSerializer, ProducerSerializer, BrokerSerializer
+from . import serializers
 from .permissions import IsInSession, IsThePlayer
 from rest_framework.decorators import action
 from game.services.normal.data_access.count_session import change_phase, start_session, count_session, create_player
@@ -27,7 +26,7 @@ class SessionAdminViewSet(ModelViewSet):
 	Обрабатывает сессии для администраторов
 	"""
 	queryset = SessionModel.objects.all()
-	serializer_class = SessionLobbySerializer
+	serializer_class = serializers.SessionAdminSerializer
 	permission_classes = [IsAdminUser]
 
 	@action(methods=['GET'], detail=True, url_path='start-session', permission_classes=[])
@@ -63,46 +62,59 @@ class SessionAdminViewSet(ModelViewSet):
 		return Response({'detail': 'Session counted'}, status=status.HTTP_200_OK)
 
 
-class SessionViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
+class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
 	"""
-	ViewSet для пользователей
+	Для просмотра списка лобби и операциями с единичным лобби
 	"""
 	queryset = SessionModel.objects.all()
-	serializer_class = SessionGameSerializer
+	serializer_class = serializers.LobbySerializer
 	permission_classes = [IsAuthenticated]
 
-	# def get_serializer_context(self):
-	# 	"""
-	# 	Передаёт сериализатору модель пользователя
-	# 	"""
-	# 	context = super(SessionViewSet, self).get_serializer_context()
-	# 	context.update({'user': self.request.user})
-	# 	return context
-	#
-	# def list(self, request, *args, **kwargs):
-	# 	"""
-	# 	?????????????????
-	# 	"""
-	# 	queryset = self.get_queryset().filter(status='initialized')
-	# 	serializer = SessionListSerializer(queryset, many=True)
-	# 	return Response(serializer.data, status=status.HTTP_200_OK)
-	#
-	# @action(detail=True)
-	# def is_started(self, request, session_pk):
-	# 	"""
-	# 	Возвращает True если сессия запущена
-	# 	"""
-	# 	try:
-	# 		is_started = self.queryset.get(pk=session_pk).status == 'started'
-	# 	except SessionModel.DoesNotExist:
-	# 		return Response({'detail': 'Session doesn\'t exist!'}, status=status.HTTP_400_BAD_REQUEST)
-	# 	return Response({'is_started': is_started}, status=status.HTTP_200_OK)
+	def list(self, request, *args, **kwargs):
+		"""
+		Выдаёт список с созданными администратором сессиями
+		"""
+		queryset = self.get_queryset().filter(status='initialized')
+		serializer = serializers.LobbySerializer(queryset, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	def retrieve(self, request, *args, **kwargs):
+		"""
+		Выдаёт информацию о конкретном лобби
+		"""
+		instance = self.get_object()
+		serializer = self.get_serializer(instance)
+		players_in_lobby = PlayerModel.objects.filter(session_id=instance.id)
+		return Response(
+			{
+				'lobby': serializer.data,
+				'players': serializers.PlayerSerializer(players_in_lobby, many=True).data
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['post'], detail=True, url_path='join', permission_classes=[])
+	def join_session(self, request, pk):
+		"""
+		Даёт игроку авторизоваться и присоединиться к сессии
+		"""
+		session_instance = SessionModel.objects.get(id=pk)
+		assert session_instance.status == 'initialized'
+		nickname = request.data.get('nickname')
+		create_player(session_instance, nickname)
+		return Response({'detail': f'Player {nickname} successfully created', 'player': serializers.PlayerSerializer(PlayerModel.objects.get(session_id=pk, nickname=nickname)).data}, status=status.HTTP_201_CREATED)
+
+	@action(methods=['delete'], detail=True, url_path='leave')
+	def leave_session(self, request):
+		"""
+		Выкидывает игрока из сессии
+		"""
+		pass
 
 
-class PlayerViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+class PlayerViewSet(viewsets.ModelViewSet):
 	queryset = PlayerModel.objects.all()
-	serializer_class = PlayerSerializer
-	permission_classes = [IsInSession]
+	serializer_class = serializers.PlayerSerializer
 
 	# @action(detail=True)
 	# def get_self_user(self, request):
@@ -149,7 +161,7 @@ class PlayerViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 
 class ProducerViewSet(ModelViewSet):
 	queryset = ProducerModel.objects.all()
-	serializer_class = ProducerSerializer
+	serializer_class = serializers.ProducerSerializer
 	permission_classes = [IsInSession]
 
 	# @action(methods=['POST'], detail=True, permission_classes=[IsThePlayer])
@@ -173,7 +185,7 @@ class ProducerViewSet(ModelViewSet):
 
 class BrokerViewSet(ModelViewSet):
 	queryset = BrokerModel.objects.all()
-	serializer_class = BrokerSerializer
+	serializer_class = serializers.BrokerSerializer
 	permission_classes = [IsInSession]
 
 	# @action(methods=['PUT'], detail=True, permission_classes=[IsAuthenticated])
@@ -234,24 +246,8 @@ class BrokerViewSet(ModelViewSet):
 class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.UpdateModelMixin,
 						 mixins.ListModelMixin):
 	queryset = TransactionModel.objects.all()
-	serializer_class = TransactionSerializer
+	serializer_class = serializers.TransactionSerializer
 	permission_classes = [IsInSession]
-
-
-class LobbyViewSet(viewsets.GenericViewSet):
-	queryset = SessionModel.objects.all()
-	serializer_class = SessionLobbySerializer
-
-	@action(methods=['post'], detail=True, url_path='join')
-	def join_session(self, request, session_id):
-		session_instance = SessionModel.objects.get(id=session_id)
-		nickname = request.data.get('nickname')
-		create_player(session_instance, nickname)
-		return Response({'detail': 'Player successfully created'}, status=status.HTTP_201_CREATED)
-
-	@action(methods=['delete'], detail=True, url_path='leave')
-	def leave_session(self, request):
-		pass
 
 
 # @api_view(['POST'])

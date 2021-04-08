@@ -10,7 +10,7 @@ from . import views
 #  - Подгрузка окна сделки и отправка сделки производителем
 
 urlpatterns = [
-	path('lobby/join/<pk>/', ),
-	path('lobby/leave/', ),
-	path('lobby/detail/', )
+	# path('lobby/join/<pk>/', ),
+	# path('lobby/leave/', ),
+	# path('lobby/detail/', )
 ]

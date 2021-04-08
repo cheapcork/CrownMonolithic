@@ -97,7 +97,7 @@ class ProducerModel(models.Model):
 		if self.pk is not None:
 			return f'Производитель {self.player.nickname}'
 		else:
-			return f'Производитель id {self.pk}'
+			super().__str__()
 
 
 class BrokerModel(models.Model):
@@ -135,13 +135,8 @@ class TransactionModel(models.Model):
 		verbose_name_plural = 'Транзакции'
 
 	def __str__(self):
-		pass
-
-	# if self.producer is not None and self.broker is not None:
-	#     return f'Сделка в сессии {self.session.name} между {self.producer.nickname} ' \
-	#        f'и {self.broker.nickname}'
-	# else:
-	#     return f'Сделка в сессии {self.session.name} между id {self.producer.id} и id {self.broker.id}'
+		if self.producer is not None and self.broker is not None:
+			return f'Сделка в сессии {self.session.name} между {self.producer.player.nickname} и {self.broker.player.nickname}'
 
 	def save(self, *args, **kwargs):
 		if not self.pk:
