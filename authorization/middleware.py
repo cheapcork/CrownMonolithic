@@ -1,5 +1,5 @@
 # from .utils import get_player
-from .models import PlayerModel, PlayerTokenModel
+from .models import PlayerTokenModel
 from django.utils.deprecation import MiddlewareMixin
 
 

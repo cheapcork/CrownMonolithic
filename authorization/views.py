@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from .serializers import PlayerWithTokenSerializer, PlayerCreateSerializer,\
     PlayerSerializer
-from .models import PlayerModel, PlayerTokenModel
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from .permissions import IsPlayer
+from django.conf import settings
 
 
 @api_view(['POST'])

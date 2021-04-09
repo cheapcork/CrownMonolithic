@@ -161,3 +161,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Game settings
+
+PLAYER_MODEL = 'game.PlayerModel'
+
+SESSION_MODEL = 'game.SessionModel'
