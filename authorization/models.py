@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Value, CharField, Subquery
 from game.models import SessionModel
 import binascii
 import os
@@ -8,18 +9,14 @@ class PlayerManager(models.Manager):
     def create_player(self, username):
         if not username:
             raise ValueError('Username required')
-        # if not session:
-        #     raise ValueError('Session instance required')
-        # player = self.model(username=username, session=session)
-        player = self.model(username=username)
-        player.save()
-        return player
+
+        player = self.create(username=username)
+        token = PlayerTokenModel.objects.create(player=player)
+        return player, token
 
 
 class PlayerModel(models.Model):
-    username = models.CharField('nickname', max_length=100, unique=True)
-    # session = models.ForeignKey(SessionModel, on_delete=models.CASCADE,
-    #                             verbose_name='Session')
+    username = models.CharField('nickname', max_length=100)
 
     objects = PlayerManager()
     class Meta:
