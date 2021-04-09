@@ -104,8 +104,8 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 		return Response(
 			{
 				'detail': f'Player {nickname} successfully created',
-				'player': serializers.PlayerSerializer(PlayerModel.objects.get(session_id=pk, nickname=nickname)).data},
-			status=status.HTTP_201_CREATED
+				'player': serializers.PlayerSerializer(PlayerModel.objects.get(session_id=pk, nickname=nickname)).data
+			}, status=status.HTTP_201_CREATED
 		)
 
 	@action(methods=['delete'], detail=True, url_path='leave')

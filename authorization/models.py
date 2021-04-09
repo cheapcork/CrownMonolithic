@@ -13,7 +13,6 @@ class PlayerManager(models.Manager):
         if not validated_data['session']:
             raise ValueError('Session required')
 
-
         session = get_session_model().objects.get(id=validated_data.pop('session'))
         player = self.create(nickname=validated_data['nickname'], session=session)
         token = PlayerTokenModel.objects.create(player=player)

@@ -1,6 +1,7 @@
-from .models import PlayerModel, PlayerTokenModel
+from .models import PlayerTokenModel
+from CrownMonolithic.utils import get_player_model
 
-#
+
 def get_player(token):
     """
     :param token: токен игрока

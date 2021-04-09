@@ -47,6 +47,6 @@ urlpatterns = [
     path('/', include(game_urls)),
     path('game/', include(router.urls)),
 
-    path('player_auth/', include(auth_urls))
+    path('', include(auth_urls))
 ]
 

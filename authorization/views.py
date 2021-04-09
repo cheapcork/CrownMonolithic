@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from .serializers import PlayerWithTokenSerializer, PlayerCreateSerializer,\
     PlayerSerializer
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from .permissions import IsPlayer
 from django.conf import settings
 
@@ -24,3 +24,21 @@ def create_player(request):
 @permission_classes([IsPlayer])
 def me(request):
     return Response(PlayerSerializer(request.player).data, status=status.HTTP_200_OK)
+
+
+# class AuthViewSet(viewsets.GenericViewSet):
+#     @action(methods=['POST'], detail=True, url_path='join')
+#     def create_player(self, request, pk):
+#         if hasattr(request, 'player'):
+#             return Response({'detail': 'You\'re already a player!'},
+#                             status=status.HTTP_400_BAD_REQUEST)
+#         request.data['session'] = pk
+#         player_serializer = PlayerCreateSerializer(data=request.data)
+#         if not player_serializer.is_valid():
+#             return Response(player_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#         return Response(player_serializer.save(), status=status.HTTP_201_CREATED)
+#
+#     @action(methods=['GET'], detail=False, permission_classes=[IsPlayer])
+#     def me(self, request):
+#         return Response(PlayerSerializer(request.player).data, status=status.HTTP_200_OK)

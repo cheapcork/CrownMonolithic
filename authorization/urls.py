@@ -1,7 +1,9 @@
 from django.urls import path, include
 from .views import create_player, me
+# from .router import router
 
 urlpatterns = [
-    path('create/', create_player),
-    path('me/', me),
+    path('game/lobby/<pk>/join/', create_player),
+    path('auth/me/', me),
+    # path('/', include(router.urls))
 ]
