@@ -190,9 +190,9 @@ class ProducerViewSet(ModelViewSet):
         """
         Отправляет полные данные о текущем игроке
         """
-        producer = PlayerModel.objects.get(producer_id=pk)
+        player = PlayerModel.objects.get(producer=pk)
         return Response(
-            serializers.FullProducerInfoSerializer(producer).data,
+            serializers.FullProducerInfoSerializer(player).data,
             status=status.HTTP_200_OK
         )
 

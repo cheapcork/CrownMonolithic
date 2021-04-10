@@ -34,6 +34,7 @@ class SessionAdminSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = SessionModel
 		fields = [
+			'id',
 			'name',
 			'game_type',
 			'turn_count',
