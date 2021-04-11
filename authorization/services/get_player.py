@@ -1,4 +1,4 @@
-from .models import PlayerTokenModel
+from authorization.models import PlayerTokenModel
 from CrownMonolithic.utils import get_player_model
 
 
@@ -9,5 +9,5 @@ def get_player(token):
     """
     try:
         return PlayerTokenModel.objects.get(key=token).player
-    except PlayerTokenModel.DoesNotExists:
+    except PlayerTokenModel.DoesNotExist:
         raise ValueError('No such player!')

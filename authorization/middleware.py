@@ -1,4 +1,4 @@
-from .utils import get_player
+from authorization.services.get_player import get_player
 from django.utils.deprecation import MiddlewareMixin
 
 
@@ -7,7 +7,7 @@ class PlayerAuthMiddleware(MiddlewareMixin):
         try:
             token = request.headers['Authorization'].split(' ')[1]
             request.player = get_player(token)
-        except KeyError:
-            print('no token')
-        except PlayerTokenModel.DoesNotExists:
+        except KeyError as e:
+            print(e, 'no token')
+        except ValueError:
             print('not a player')
