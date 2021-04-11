@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User as UserModel
 from game.services.transporting_cost import get_transporting_cost
+from authorization.models import PlayerBaseModel
 
 
 class SessionModel(models.Model):
@@ -46,7 +46,7 @@ class SessionModel(models.Model):
 		return self.name
 
 
-class PlayerModel(models.Model):
+class PlayerModel(PlayerBaseModel):
 	ROLES = (
 		('unassigned', 'Не назначена'),
 		('producer', 'Производитель'),
@@ -63,8 +63,6 @@ class PlayerModel(models.Model):
 		('ET', "Этруа")
 	)
 
-	session = models.ForeignKey(SessionModel, on_delete=models.CASCADE,
-								related_name='player', verbose_name='Сессия', default=0)
 	nickname = models.CharField(max_length=100, verbose_name='Никнейм')
 	role = models.CharField(max_length=20, choices=ROLES, verbose_name='Игровая роль',
 							default='unassigned', editable=True)
@@ -75,6 +73,7 @@ class PlayerModel(models.Model):
 	balance = models.IntegerField(default=0)
 	is_bankrupt = models.BooleanField(default=False)
 	status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
+
 
 	class Meta:
 		verbose_name = 'Игрок'
