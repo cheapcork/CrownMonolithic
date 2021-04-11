@@ -211,11 +211,3 @@ def finish_by_player_count(session_instance):
 		session_instance.save()
 	return
 
-
-def create_player(session_instance, nickname):
-	"""
-	Создаёт модель игрока при подключении к лобби
-	"""
-	player = PlayerModel.objects.create(session_id=session_instance.id, nickname=nickname)
-	player.save()
-	return

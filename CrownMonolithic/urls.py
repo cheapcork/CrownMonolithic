@@ -18,7 +18,6 @@ from django.urls import path, include
 from django.conf.urls import url
 from game.urls import urlpatterns as game_urls
 from game.router import router
-from authorization.urls import urlpatterns as auth_urls
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -46,7 +45,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('/', include(game_urls)),
     path('game/', include(router.urls)),
-
-    path('', include(auth_urls))
 ]
 

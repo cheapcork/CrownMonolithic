@@ -1,22 +1,18 @@
 from django.db import models
-from django.db.models import Value, CharField, Subquery
 import binascii
 import os
 from django.conf import settings
-from CrownMonolithic.utils import get_player_model, get_session_model
+from CrownMonolithic.utils import get_session_model
 
 
 class PlayerManager(models.Manager):
-    def create_player(self, validated_data):
-        if not validated_data['nickname']:
-            raise ValueError('Nickname required')
-        if not validated_data['session']:
-            raise ValueError('Session required')
-
-        session = get_session_model().objects.get(id=validated_data.pop('session'))
-        player = self.create(nickname=validated_data['nickname'], session=session)
-        token = PlayerTokenModel.objects.create(player=player)
-        return player, token
+    def create_player(self, session, nickname):
+        """
+        Создает игрока и токен.
+        """
+        player = self.create(nickname=nickname, session=session)
+        PlayerTokenModel.objects.create(player=player)
+        return player
 
 
 class PlayerBaseModel(models.Model):
@@ -24,6 +20,7 @@ class PlayerBaseModel(models.Model):
     session = models.ForeignKey(settings.SESSION_MODEL, on_delete=models.CASCADE,
                                 related_name='player', verbose_name='Сессия', default=0)
     objects = PlayerManager()
+
     class Meta:
         verbose_name = 'Игрок'
         verbose_name_plural = 'Игроки'

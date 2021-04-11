@@ -1,8 +1,7 @@
 from authorization.models import PlayerTokenModel
-from CrownMonolithic.utils import get_player_model
 
 
-def get_player(token):
+def get_player_from_token(token):
     """
     :param token: токен игрока
     :return: Объект игрока
