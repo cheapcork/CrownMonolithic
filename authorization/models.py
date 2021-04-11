@@ -1,35 +1,38 @@
 from django.db import models
-from django.db.models import Value, CharField, Subquery
-from game.models import SessionModel
 import binascii
 import os
+from django.conf import settings
+from CrownMonolithic.utils import get_session_model
 
 
 class PlayerManager(models.Manager):
-    def create_player(self, username):
-        if not username:
-            raise ValueError('Username required')
+    def create_player(self, session, nickname):
+        """
+        Создает игрока и токен.
+        """
+        player = self.create(nickname=nickname, session=session)
+        PlayerTokenModel.objects.create(player=player)
+        return player
 
-        player = self.create(username=username)
-        token = PlayerTokenModel.objects.create(player=player)
-        return player, token
 
-
-class PlayerModel(models.Model):
-    username = models.CharField('nickname', max_length=100)
-
+class PlayerBaseModel(models.Model):
+    nickname = models.CharField('nickname', max_length=100)
+    session = models.ForeignKey(settings.SESSION_MODEL, on_delete=models.CASCADE,
+                                related_name='player', verbose_name='Сессия', default=0)
     objects = PlayerManager()
+
     class Meta:
         verbose_name = 'Игрок'
         verbose_name_plural = 'Игроки'
+        abstract = True
 
     def __str__(self):
-        return f'Игрок {self.username}'
+        return f'Игрок {self.nickname}'
 
 
 class PlayerTokenModel(models.Model):
     key = models.CharField('key', max_length=100)
-    player = models.OneToOneField(PlayerModel, on_delete=models.CASCADE,
+    player = models.OneToOneField(settings.PLAYER_MODEL, on_delete=models.CASCADE,
                                   related_name='token', verbose_name='player')
     created = models.DateTimeField('Creation time', auto_now_add=True)
 
