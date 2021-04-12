@@ -121,7 +121,7 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 		except SessionModel.DoesNotExist:
 			return Response({'detail': 'No such session!'},
 							status=status.HTTP_400_BAD_REQUEST)
-		except AssertionError:
+		except  AssertionError:
 			return Response({'detail': 'Session is already started!'},
 							status=status.HTTP_400_BAD_REQUEST)
 
