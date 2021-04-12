@@ -15,7 +15,9 @@ class LobbySerializer(serializers.ModelSerializer):
 			'name',
 			'game_type',
 			'status',
-			'player_count'
+			'player_count',
+			'current_turn',
+			'turn_phase',
 		]
 		read_only = [
 			'__all__',
