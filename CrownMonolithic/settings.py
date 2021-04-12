@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'djoser',
+    # 'djoser',
     'drf_yasg',
     'corsheaders',
     'game.apps.GameConfig',
@@ -63,9 +63,9 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ORIGIN_WHITELIST = [
-    'http://192.168.0.101'
-]
+# CORS_ORIGIN_WHITELIST = [
+#     'http://192.168.0.101'
+# ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

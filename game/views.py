@@ -13,9 +13,8 @@ from rest_framework.decorators import action
 from authorization.services.create_player import create_player
 from authorization.permissions import IsPlayer
 from authorization.serializers import PlayerWithTokenSerializer
-
-from game.services.normal.data_access.count_session import change_phase, \
-	start_session, count_session
+from game.services.normal.data_access.count_session import change_phase, start_session, count_session,\
+	produce_billets, send_trade, cancel_trade, end_turn, cancel_end_turn, accept_transaction, deny_transaction
 
 from django.template import loader
 from django.http import HttpResponse
@@ -26,6 +25,7 @@ from django.http import HttpResponse
 # url_path - НАЗВАНИЕ_МЕТОДА
 # url_name - НАЗВАНИЕ-МЕТОДА
 # detail - None; обязательное поле; устанавливает, применяется ли роут для retrieve (True) или list (False)
+
 
 class SessionAdminViewSet(ModelViewSet):
 	"""
@@ -110,7 +110,6 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 		if hasattr(request, 'player'):
 			return Response({'detail': 'You\'re already a player!'},
 							status=status.HTTP_400_BAD_REQUEST)
-
 		try:
 			session = SessionModel.objects.get(id=pk)
 			assert session.status == 'initialized'
@@ -126,8 +125,7 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 							status=status.HTTP_400_BAD_REQUEST)
 
 
-	@action(methods=['delete'], detail=True, url_path='leave',
-			permission_classes=[IsPlayer])
+	@action(methods=['delete'], detail=True, url_path='leave')
 	def leave_session(self, request, pk):
 		"""
 		Выкидывает игрока из сессии
@@ -144,144 +142,216 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 			return Response({'detail': 'You\'re not in this session'},
 							status=status.HTTP_400_BAD_REQUEST)
 
+
 class PlayerViewSet(viewsets.ModelViewSet):
 	queryset = PlayerModel.objects.all()
 	serializer_class = serializers.PlayerSerializer
-
-	@action(methods=['GET'], permission_classes=[IsPlayer],	detail=False)
-	def me(self, request):
-		print(self.get_serializer(), type(request.player))
-		return Response(self.get_serializer(request.player).data,
-						status=status.HTTP_200_OK)
-
-
-# @action(detail=True)
-# def get_self_user(self, request):
-# 	"""
-# 	Возвращает данные о пользователе, с которым связан игрок
-# 	"""
-# 	return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
-#
-# @action(methods=['PUT'], detail=True, permission_classes=[IsInSession])
-# def end_turn(self, request):
-# 	try:
-# 		player = request.user.player.get()
-# 	except PlayerModel.DoesNotExist:
-# 		return Response({'detail': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
-#
-# 	if player.ended_turn:
-# 		return Response({'detail': 'You\'ve already finished turn!'}, status=status.HTTP_400_BAD_REQUEST)
-# 	player.ended_turn = True
-# 	player.save()
-# 	# finish_by_players(player.session)
-# 	return Response(status=status.HTTP_200_OK)
-#
-# @action(methods=['PUT'], detail=True, permission_classes=IsInSession)
-# def cancel_end_turn(self, request):
-# 	try:
-# 		player = request.user.player.get()
-# 	except PlayerModel.DoesNotExist:
-# 		return Response({'detail': 'You\'re not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
-#
-# 	if not player.ended_turn:
-# 		return Response({'detail': 'You\'ve not finished turn yet!'}, status=status.HTTP_400_BAD_REQUEST)
-# 	player.ended_turn = False
-# 	player.save()
-# 	return Response(status=status.HTTP_200_OK)
-#
-# @action(methods=['DELETE'], detail=True, permission_classes=[IsInSession])
-# def leave_session(self, request):
-# 	try:
-# 		request.user.player.get().delete()
-# 		return Response(status=status.HTTP_204_NO_CONTENT)
-# 	except PlayerModel.DoesNotExist:
-# 		return Response({'detail': 'You are not in any session!'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProducerViewSet(ModelViewSet):
 	queryset = ProducerModel.objects.all()
 	serializer_class = serializers.ProducerSerializer
-	permission_classes = [IsInSession]
 
+	# permission_classes = [IsInSession]
 
-# @action(methods=['POST'], detail=True, permission_classes=[IsThePlayer])
-# def produce(self, request):
-# 	"""
-# 	Отправляет запрос на производство
-# 	"""
-# 	try:
-# 		producer = ProducerModel.objects.get(player=request.user.player.get())
-# 	except PlayerModel.DoesNotExist:
-# 		return Response({'detail': 'You are not in session!'}, status=status.HTTP_400_BAD_REQUEST)
-# 	except ProducerModel.DoesNotExist:
-# 		return Response({'detail': 'You are not a producer!'}, status=status.HTTP_400_BAD_REQUEST)
-# 	# if producer.player.session.turn
-# 	if producer.billets_produced != 0:
-# 		return Response({'detail': 'You\'ve already produced at this turn'}, status=status.HTTP_400_BAD_REQUEST)
-# 	producer.billets_produced = request.data['produce']
-# 	producer.save()
-# 	return Response(status=status.HTTP_201_CREATED)
+	# permission_classes = [IsThePlayer]
+	@action(methods=['POST'], detail=True)
+	def produce(self, request, pk):
+		"""
+		Отправляет запрос на производство заготовок
+		"""
+		producer = ProducerModel.objects.get(player_id=pk)
+		quantity = request.data.get('quantity')
+		produce_billets(producer, quantity)
+		return Response(
+			{
+				'detail': f'Произведено {quantity} заготовок для производителя {producer.player.nickname}.',
+				'stash': serializers.ProducerSerializer(producer).data
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['POST'], detail=True)
+	def trade(self, request, pk):
+		"""
+		Отправляет маклеру предложение о сделке
+		"""
+		producer = ProducerModel.objects.get(player_id=pk)
+		broker = BrokerModel.objects.get(player_id=request.data.get('broker'))
+		terms = request.data.get('terms')
+		send_trade(producer, broker, terms)
+		return Response(
+			{
+				'detail': f'Отправлена сделка от {producer.player.nickname} к {broker.player.nickname}',
+				'terms': terms
+			},
+			status=status.HTTP_201_CREATED
+		)
+
+	@action(methods=['delete'], detail=True, url_path='cancel-trade')
+	def cancel_trade(self, request, pk):
+		"""
+		Отменяет сделку с маклером
+		"""
+		producer = ProducerModel.objects.get(player_id=pk)
+		broker = BrokerModel.objects.get(player_id=request.data.get('broker'))
+		cancel_trade(producer, broker)
+		return Response(
+			{
+				'detail': f'Сделка между {producer.player.nickname} и {broker.player.nickname} отменена'
+			},
+			status=status.HTTP_204_NO_CONTENT
+		)
+
+	@action(detail=True)
+	def me(self, request, pk):
+		"""
+		Отправляет полные данные о текущем игроке
+		"""
+		player = PlayerModel.objects.get(producer=pk)
+		return Response(
+			serializers.FullProducerInfoSerializer(player).data,
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['put'], detail=True, url_path='end-turn')
+	def end_turn(self, request, pk):
+		"""
+		Завершает ход
+		"""
+		player = PlayerModel.objects.get(producer_id=pk)
+		end_turn(player)
+		return Response(
+			{
+				'detail': f'Игрок {player.nickname} завершил ход',
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['put'], detail=True, url_path='cancel-end-turn')
+	def cancel_end_turn(self, request, pk):
+		"""
+		Отменяет завершение хода
+		"""
+		player = PlayerModel.objects.get(player_id=pk)
+		cancel_end_turn(player)
+		return Response(
+			{
+				'detail': f'Игрок {player.nickname} отменил завершение хода'
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(detail=True, url_path='balance-detail')
+	def balance_detail(self, request, pk):
+		"""
+		Показывает детализацию баланса за предыдущий ход
+		"""
+		pass
+
+	@action(detail=True, url_path='balance-history')
+	def balance_history(self, request, pk):
+		"""
+		Показывает детализацию баланса за игру
+		"""
+		pass
+
+	@action(methods=[''], detail=True, url_path='accept-show-balace')
+	def accept_show_balance(self, request, pk):
+		"""
+		Подтверждает показ баланса маклеру
+		"""
+		pass
+
+	@action(methods=[''], detail=True, url_path='deny-show-balance')
+	def deny_show_balance(self, request, pk):
+		"""
+		Отклоняет запрос на показ баланса
+		"""
+		pass
 
 
 class BrokerViewSet(ModelViewSet):
 	queryset = BrokerModel.objects.all()
 	serializer_class = serializers.BrokerSerializer
-	permission_classes = [IsInSession]
 
+	# permission_classes = [IsInSession]
 
-# @action(methods=['PUT'], detail=True, permission_classes=[IsAuthenticated])
-# def deny_transaction(self, request, pk):
-# 	transaction_instance = self.queryset.get(pk=pk)
-# 	# FIXME: Optimise me, please
-# 	if not request.user.player.exists():
-# 		return Response({'detail': 'You\'re not a player'}, status=status.HTTP_400_BAD_REQUEST)
-# 	player = request.user.player.get()
-# 	if not ((
-# 					player.role == 'producer' and
-# 					transaction_instance.producer != player.producer
-# 			) or (
-# 					player.role == 'broker' and
-# 					transaction_instance.broker != player.broker
-# 			)):
-# 		return Response({'detail': 'That\'s not your transaction!'}, status=status.HTTP_400_BAD_REQUEST)
-# 	elif transaction_instance.status == 'denied':
-# 		return Response({'detail': 'Transaction is already denied!'}, status=status.HTTP_400_BAD_REQUEST)
-# 	elif transaction_instance.status == 'accepted':
-# 		return Response({'detail': 'Transaction is already accepted!'}, status=status.HTTP_400_BAD_REQUEST)
-# 	transaction_instance.status = 'denied'
-# 	transaction_instance.save()
-# 	return Response(status=status.HTTP_200_OK)
-#
-# # Наследуются ли permission_classes от ViewSet к @action?
-# @action(methods=['PUT'], detail=True, permission_classes=[IsAuthenticated])
-# def accept_transaction(self, request, pk):
-# 	transaction_instance = self.queryset.get(pk=pk)
-# 	# FIXME: Optimise me, please
-# 	if not request.user.player.exists():
-# 		return Response({'detail': 'You\'re not a player'},
-# 						status=status.HTTP_400_BAD_REQUEST)
-# 	player = request.user.player.get()
-# 	if player.role == 'unassigned':
-# 		return Response({'detail': 'You\'ve no role!'},
-# 						status=status.HTTP_400_BAD_REQUEST)
-# 	elif not ((
-# 					  player.role == 'producer' and
-# 					  transaction_instance.producer != player.producer
-# 			  ) or (
-# 					  player.role == 'broker' and
-# 					  transaction_instance.broker != player.broker
-# 			  )):
-# 		return Response({'detail': 'That\'s not your transaction!'},
-# 						status=status.HTTP_400_BAD_REQUEST)
-# 	elif transaction_instance.status == 'denied':
-# 		return Response({'detail': 'Transaction is already denied!'},
-# 						status=status.HTTP_400_BAD_REQUEST)
-# 	elif transaction_instance.status == 'accepted':
-# 		return Response({'detail': 'Transaction is already accepted!'},
-# 						status=status.HTTP_400_BAD_REQUEST)
-# 	transaction_instance.status = 'accept'
-# 	transaction_instance.save()
-# 	return Response(status=status.HTTP_200_OK)
+	@action(detail=True)
+	def me(self, request, pk):
+		"""
+		Отправляет полные данные о текущем игроке
+		"""
+		broker = PlayerModel.objects.get(broker_id=pk)
+		return Response(
+			serializers.PlayerSerializer(broker).data,
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['put'], detail=True, url_path='accept')
+	def accept_transaction(self, request, pk):
+		"""
+		Одобряет сделку с производителем
+		"""
+		producer = request.data.get('producer')
+		broker = BrokerModel.objects.get(id=pk)
+		accept_transaction(producer, broker)
+		return Response(
+			{
+				'detail': f'Маклер {broker.player.nickname} одобрил сделку с {producer.player.nickname}'
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['put'], detail=True, url_path='deny')
+	def deny_transaction(self, request, pk):
+		"""
+		Отклоняет сделку с производителем
+		"""
+		producer = request.data.get('producer')
+		broker = BrokerModel.objects.get(id=pk)
+		deny_transaction(producer, broker)
+		return Response(
+			{
+				'detail': f'Маклер {broker.player.nickname} отклонил сделку с {producer.player.nickname}'
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['put'], detail=True, url_path='end-turn')
+	def end_turn(self, request, pk):
+		"""
+		Завершает ход
+		"""
+		player = PlayerModel.objects.get(producer_id=pk)
+		end_turn(player)
+		return Response(
+			{
+				'detail': f'Игрок {player.nickname} завершил ход',
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['put'], detail=True, url_path='cancel-end-turn')
+	def cancel_end_turn(self, request, pk):
+		"""
+		Отменяет завершение хода
+		"""
+		player = PlayerModel.objects.get(player_id=pk)
+		cancel_end_turn(player)
+		return Response(
+			{
+				'detail': f'Игрок {player.nickname} отменил завершение хода'
+			},
+			status=status.HTTP_200_OK
+		)
+
+	@action(methods=['get'], detail=True, url_path='request-balance')
+	def request_balance(self, request, pk):
+		"""
+		Запрашивает баланс производителя
+		"""
+		pass
 
 
 class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.UpdateModelMixin,
@@ -289,28 +359,3 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixin
 	queryset = TransactionModel.objects.all()
 	serializer_class = serializers.TransactionSerializer
 	permission_classes = [IsInSession]
-
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def join_session_view(request, session_pk):
-# 	session_instance = get_object_or_404(SessionModel, pk=session_pk)
-# 	try:
-# 		player_instance = PlayerModel.objects.get(user=request.user)
-# 	except PlayerModel.DoesNotExist:
-# 		if not session_instance.status == 'initialized':
-# 			return Response({'detail': 'Session is started or finished!'}, status=status.HTTP_400_BAD_REQUEST)
-# 		print(session_instance)
-# 		player_serialized = PlayerSerializer(data={
-# 			'nickname': request.user.username,
-# 			'user': request.user.id,
-# 			'session': session_instance.id,
-# 		})
-# 		if not player_serialized.is_valid():
-# 			return Response(player_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
-# 		player_serialized.save()
-# 		try:
-# 			create_session(session_instance)
-# 		except Exception:
-# 			pass
-# 		return Response(player_serialized.data, status=status.HTTP_200_OK)

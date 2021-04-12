@@ -11,10 +11,11 @@ router = DefaultRouter()
 router.register(r'session-admin', views.SessionAdminViewSet)
 router.register(r'lobby', views.LobbyViewSet)
 router.register(r'player', views.PlayerViewSet)
+router.register(r'producer', views.ProducerViewSet)
+router.register(r'broker', views.BrokerViewSet)
 # router.register(r'session', views.SessionViewSet)
 # router.register(r'player', views.GetOrUpdatePlayerViewSet)
 # router.register(r'producer', views.ProducerViewSet)
-# router.register(r'broker', views.BrokerViewSet)
 # router.register(r'transactions', views.TransactionViewSet)
 
 
