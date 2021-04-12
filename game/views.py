@@ -9,11 +9,13 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from . import serializers
 from .permissions import IsInSession, IsThePlayer
 from rest_framework.decorators import action
-from game.services.normal.data_access.count_session import change_phase, \
-	start_session, count_session
+
 from authorization.services.create_player import create_player
 from authorization.permissions import IsPlayer
 from authorization.serializers import PlayerWithTokenSerializer
+
+from game.services.normal.data_access.count_session import change_phase, \
+	start_session, count_session
 
 from django.template import loader
 from django.http import HttpResponse
@@ -98,6 +100,7 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 			},
 			status=status.HTTP_200_OK
 		)
+
 
 	@action(methods=['post'], detail=True, url_path='join')
 	def join_session(self, request, pk):
