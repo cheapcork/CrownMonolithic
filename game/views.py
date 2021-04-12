@@ -113,12 +113,8 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 			assert session.status == 'initialized'
 			nickname = request.data.get('nickname')
 			player = create_player(session, nickname)
-			return Response(
-				{
-					'detail': f'Player {nickname} successfully created',
-					'player': PlayerWithTokenSerializer(player).data
-				}, status=status.HTTP_201_CREATED
-			)
+			return Response(PlayerWithTokenSerializer(player).data,
+							status=status.HTTP_201_CREATED)
 		except SessionModel.DoesNotExist:
 			return Response({'detail': 'No such session!'},
 							status=status.HTTP_400_BAD_REQUEST)
