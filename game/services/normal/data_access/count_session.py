@@ -219,6 +219,7 @@ def finish_by_player_count(session_instance):
         session_instance.save()
     return
 
+<<<<<<< HEAD
 
 def create_player(session_instance, nickname):
     """
@@ -301,3 +302,5 @@ def deny_transaction(producer, broker):
     )
     transaction.status = 'denied'
     transaction.save()
+=======
+>>>>>>> 01d2cff4340765e879221daac66c61f3e2e2bd1e

@@ -3,11 +3,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import SessionModel, PlayerModel, ProducerModel, TransactionModel, BrokerModel
+from .models import SessionModel, PlayerModel, ProducerModel, TransactionModel, \
+	BrokerModel
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from . import serializers
 from .permissions import IsInSession, IsThePlayer
 from rest_framework.decorators import action
+<<<<<<< HEAD
 from game.services.normal.data_access.count_session import change_phase, start_session, count_session, create_player, \
     produce_billets, send_trade, cancel_trade, end_turn, cancel_end_turn, accept_transaction, deny_transaction
 

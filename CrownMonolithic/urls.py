@@ -44,6 +44,6 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('/', include(game_urls)),
-    path('game/', include(router.urls))
+    path('game/', include(router.urls)),
 ]
 
