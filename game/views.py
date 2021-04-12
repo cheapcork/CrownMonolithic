@@ -147,6 +147,11 @@ class PlayerViewSet(viewsets.ModelViewSet):
 	queryset = PlayerModel.objects.all()
 	serializer_class = serializers.PlayerSerializer
 
+	@action(methods=['GET'], permission_classes=[IsPlayer],	detail=False)
+	def me(self, request):
+		return Response(self.get_serializer(request.player).data,
+						status=status.HTTP_200_OK)
+
 
 class ProducerViewSet(ModelViewSet):
 	queryset = ProducerModel.objects.all()
