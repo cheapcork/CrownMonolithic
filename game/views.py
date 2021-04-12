@@ -287,6 +287,7 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixin
 	serializer_class = serializers.TransactionSerializer
 	permission_classes = [IsInSession]
 
+
 # @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
 # def join_session_view(request, session_pk):
