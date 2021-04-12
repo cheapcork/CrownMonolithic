@@ -9,7 +9,11 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from . import serializers
 from .permissions import IsInSession, IsThePlayer
 from rest_framework.decorators import action
-from game.services.normal.data_access.count_session import change_phase, start_session, count_session, create_player, \
+
+from authorization.services.create_player import create_player
+from authorization.permissions import IsPlayer
+from authorization.serializers import PlayerWithTokenSerializer
+from game.services.normal.data_access.count_session import change_phase, start_session, count_session,\
 	produce_billets, send_trade, cancel_trade, end_turn, cancel_end_turn, accept_transaction, deny_transaction
 
 from django.template import loader
@@ -97,33 +101,46 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 			status=status.HTTP_200_OK
 		)
 
+
 	@action(methods=['post'], detail=True, url_path='join')
 	def join_session(self, request, pk):
 		"""
 		Даёт игроку авторизоваться и присоединиться к сессии
 		"""
-		session_instance = SessionModel.objects.get(id=pk)
-		assert session_instance.status == 'initialized'
-		nickname = request.data.get('nickname')
-		create_player(session_instance, nickname)
-		return Response(
-			{
-				'detail': f'Player {nickname} successfully created',
-				'player': serializers.PlayerSerializer(PlayerModel.objects.get(session_id=pk, nickname=nickname)).data},
-			status=status.HTTP_201_CREATED
-		)
+		if hasattr(request, 'player'):
+			return Response({'detail': 'You\'re already a player!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		try:
+			session = SessionModel.objects.get(id=pk)
+			assert session.status == 'initialized'
+			nickname = request.data.get('nickname')
+			player = create_player(session, nickname)
+			return Response(PlayerWithTokenSerializer(player).data,
+							status=status.HTTP_201_CREATED)
+		except SessionModel.DoesNotExist:
+			return Response({'detail': 'No such session!'},
+							status=status.HTTP_400_BAD_REQUEST)
+		except  AssertionError:
+			return Response({'detail': 'Session is already started!'},
+							status=status.HTTP_400_BAD_REQUEST)
+
 
 	@action(methods=['delete'], detail=True, url_path='leave')
 	def leave_session(self, request, pk):
 		"""
 		Выкидывает игрока из сессии
 		"""
-		session_instance = SessionModel.objects.get(pk=pk)
-		player_id = request.data.get('id')
-		player = PlayerModel.objects.get(pk=player_id, session_id=pk)
-		assert player.session.id == session_instance.id, "Вы не в той сессии"
-		player.delete()
-		return Response(status=status.HTTP_204_NO_CONTENT)
+		try:
+			session_instance = SessionModel.objects.get(pk=pk)
+			assert request.player.session.id == session_instance.id, "Вы не в той сессии"
+			request.player.delete()
+			return Response(status=status.HTTP_204_NO_CONTENT)
+		except SessionModel.DoesNotExist:
+			return Response({'detail': 'No such session'},
+							status=status.HTTP_400_BAD_REQUEST)
+		except AssertionError:
+			return Response({'detail': 'You\'re not in this session'},
+							status=status.HTTP_400_BAD_REQUEST)
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
