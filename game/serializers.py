@@ -73,7 +73,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 	"""
 	Сериализатор для игрока
 	"""
-	role_info = serializers.SerializerMethodField('get_role_info')
+	# role_info = serializers.SerializerMethodField('get_role_info')
 
 	class Meta:
 		model = PlayerModel
@@ -88,7 +88,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 			'is_bankrupt',
 			'status',
 			'position',
-			'role_info',
+			# 'role_info',
 		]
 		read_only = [
 			'id',
@@ -96,17 +96,17 @@ class PlayerSerializer(serializers.ModelSerializer):
 			'position'
 		]
 
-	@staticmethod
-	def get_role_info(player_instance):
-		roles = {
-			'broker': {'model': BrokerModel, 'serializer': BrokerSerializer},
-			'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
-		}
-		if player_instance.role == 'unassigned':
-			return 'unassigned'
-
-		model = roles[player_instance.role]['model'].objects.get(player=player_instance.id)
-		return roles[player_instance.role]['serializer'](model).data
+	# @staticmethod
+	# def get_role_info(player_instance):
+	# 	roles = {
+	# 		'broker': {'model': BrokerModel, 'serializer': BrokerSerializer},
+	# 		'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
+	# 	}
+	# 	if player_instance.role == 'unassigned':
+	# 		return 'unassigned'
+	#
+	# 	model = roles[player_instance.role]['model'].objects.get(player=player_instance.id)
+	# 	return roles[player_instance.role]['serializer'](model).data
 
 
 class ProducerSerializer(serializers.ModelSerializer):
@@ -135,15 +135,25 @@ class ProducerSerializer(serializers.ModelSerializer):
 
 class BrokerSerializer(serializers.ModelSerializer):
 	transactions = serializers.SerializerMethodField('get_broker_transactions')
+	player_info = serializers.SerializerMethodField('get_player_info', read_only=True)
 
 	class Meta:
 		model = BrokerModel
-		fields = '__all__'
-		read_only = '__all__'
+		fields = [
+			'id',
+			'player_info',
+			'transactions'
+		]
+
+	@staticmethod
+	def get_player_info(instance):
+		info = PlayerSerializer(instance.player).data
+		return info
 
 	# FIXME: optimize me, please
-	def get_broker_transactions(self, instance):
-		transactions = {}
+	@staticmethod
+	def get_broker_transactions(instance):
+		transactions = dict()
 		transactions['active_transactions'] = TransactionSerializer(
 			instance.transaction.filter(
 				broker=instance.id,
@@ -187,29 +197,20 @@ class FullProducerInfoSerializer(serializers.ModelSerializer):
 	"""
 	Выдаёт полную информацию об игроке-производителе
 	"""
-	stash_info = serializers.SerializerMethodField(source='get_stash_info', read_only=True)
+	player_info = serializers.SerializerMethodField(source='get_player_info', read_only=True)
 
 	class Meta:
-		model = PlayerModel
+		model = ProducerModel
 		fields = [
 			'id',
-			'nickname',
-			'role',
-			'city',
-			'balance',
-			'is_bankrupt',
-			'ended_turn',
-			'status',
-			'stash_info'
+			'billets_produced',
+			'billets_stored',
+			'player_info',
 		]
 
 	@staticmethod
-	def get_stash_info(instance):
+	def get_player_info(instance):
 		"""
 		Добавляет к сериализатору игрока-производителя информацию о хранилище
 		"""
-		stash = ProducerSerializer(
-			instance.producer
-		).data
-		# fields('billets_produced', 'billets_stored')
-		return stash
+		return PlayerSerializer(instance.player).data

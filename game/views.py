@@ -98,9 +98,10 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 		"""
 		Даёт игроку авторизоваться и присоединиться к сессии
 		"""
-		session_instance = SessionModel.objects.get(id=pk)
+		session_instance = SessionModel.objects.get(pk=pk)
 		assert session_instance.status == 'initialized'
 		nickname = request.data.get('nickname')
+		# FIXME ????????????????????????
 		create_player(session_instance, nickname)
 		return Response(
 			{
@@ -152,8 +153,8 @@ class ProducerViewSet(ModelViewSet):
 		"""
 		Отправляет маклеру предложение о сделке
 		"""
-		producer = ProducerModel.objects.get(player_id=pk)
-		broker = BrokerModel.objects.get(player_id=request.data.get('broker'))
+		producer = ProducerModel.objects.get(id=pk)
+		broker = BrokerModel.objects.get(id=request.data.get('broker'))
 		terms = request.data.get('terms')
 		send_trade(producer, broker, terms)
 		return Response(
@@ -169,8 +170,8 @@ class ProducerViewSet(ModelViewSet):
 		"""
 		Отменяет сделку с маклером
 		"""
-		producer = ProducerModel.objects.get(player_id=pk)
-		broker = BrokerModel.objects.get(player_id=request.data.get('broker'))
+		producer = ProducerModel.objects.get(id=pk)
+		broker = BrokerModel.objects.get(id=request.data.get('broker'))
 		cancel_trade(producer, broker)
 		return Response(
 			{
@@ -184,9 +185,9 @@ class ProducerViewSet(ModelViewSet):
 		"""
 		Отправляет полные данные о текущем игроке
 		"""
-		player = PlayerModel.objects.get(producer_id=pk)
+		producer = ProducerModel.objects.get(pk=pk)
 		return Response(
-			serializers.FullProducerInfoSerializer(player).data,
+			serializers.FullProducerInfoSerializer(producer).data,
 			status=status.HTTP_200_OK
 		)
 
@@ -195,7 +196,7 @@ class ProducerViewSet(ModelViewSet):
 		"""
 		Завершает ход
 		"""
-		player = PlayerModel.objects.get(producer_id=pk)
+		player = ProducerModel.objects.get(id=pk).player
 		end_turn(player)
 		return Response(
 			{
@@ -209,7 +210,7 @@ class ProducerViewSet(ModelViewSet):
 		"""
 		Отменяет завершение хода
 		"""
-		player = PlayerModel.objects.get(player_id=pk)
+		player = ProducerModel.objects.get(id=pk).player
 		cancel_end_turn(player)
 		return Response(
 			{
@@ -258,9 +259,9 @@ class BrokerViewSet(ModelViewSet):
 		"""
 		Отправляет полные данные о текущем игроке
 		"""
-		broker = PlayerModel.objects.get(broker_id=pk)
+		broker = BrokerModel.objects.get(id=pk)
 		return Response(
-			serializers.PlayerSerializer(broker).data,
+			serializers.BrokerSerializer(broker).data,
 			status=status.HTTP_200_OK
 		)
 
@@ -269,7 +270,7 @@ class BrokerViewSet(ModelViewSet):
 		"""
 		Одобряет сделку с производителем
 		"""
-		producer = request.data.get('producer')
+		producer = ProducerModel.objects.get(request.data.get('producer'))
 		broker = BrokerModel.objects.get(id=pk)
 		accept_transaction(producer, broker)
 		return Response(
@@ -284,7 +285,7 @@ class BrokerViewSet(ModelViewSet):
 		"""
 		Отклоняет сделку с производителем
 		"""
-		producer = request.data.get('producer')
+		producer = ProducerModel.objects.get(request.data.get('producer'))
 		broker = BrokerModel.objects.get(id=pk)
 		deny_transaction(producer, broker)
 		return Response(
@@ -299,7 +300,7 @@ class BrokerViewSet(ModelViewSet):
 		"""
 		Завершает ход
 		"""
-		player = PlayerModel.objects.get(producer_id=pk)
+		player = BrokerModel.objects.get(pk=pk).player
 		end_turn(player)
 		return Response(
 			{
@@ -313,7 +314,7 @@ class BrokerViewSet(ModelViewSet):
 		"""
 		Отменяет завершение хода
 		"""
-		player = PlayerModel.objects.get(player_id=pk)
+		player = BrokerModel.objects.get(pk=pk).player
 		cancel_end_turn(player)
 		return Response(
 			{
