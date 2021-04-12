@@ -101,12 +101,13 @@ class LobbyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Li
 		session_instance = SessionModel.objects.get(pk=pk)
 		assert session_instance.status == 'initialized'
 		nickname = request.data.get('nickname')
-		# FIXME ????????????????????????
 		create_player(session_instance, nickname)
+		player = PlayerModel.objects.get(session_id=pk, nickname=nickname)
 		return Response(
 			{
 				'detail': f'Player {nickname} successfully created',
-				'player': serializers.PlayerSerializer(PlayerModel.objects.get(session_id=pk, nickname=nickname)).data},
+				'player': serializers.PlayerSerializer(player).data,
+			},
 			status=status.HTTP_201_CREATED
 		)
 

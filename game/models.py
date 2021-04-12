@@ -1,6 +1,5 @@
 from django.db import models
 from game.services.transporting_cost import get_transporting_cost
-# from authorization.models import PlayerBaseModel
 
 
 class SessionModel(models.Model):
