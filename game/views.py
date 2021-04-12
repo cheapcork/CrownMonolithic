@@ -12,10 +12,6 @@ from rest_framework.decorators import action
 from game.services.normal.data_access.count_session import change_phase, start_session, count_session, create_player, \
 	produce_billets, send_trade, cancel_trade, end_turn, cancel_end_turn, accept_transaction, deny_transaction
 
-from django.template import loader
-from django.http import HttpResponse
-
-
 # Декоратор @action. Дефолтные значениея:
 # methods - GET
 # url_path - НАЗВАНИЕ_МЕТОДА
@@ -135,9 +131,6 @@ class ProducerViewSet(ModelViewSet):
 	queryset = ProducerModel.objects.all()
 	serializer_class = serializers.ProducerSerializer
 
-	# permission_classes = [IsInSession]
-
-	# permission_classes = [IsThePlayer]
 	@action(methods=['POST'], detail=True)
 	def produce(self, request, pk):
 		"""
@@ -191,7 +184,7 @@ class ProducerViewSet(ModelViewSet):
 		"""
 		Отправляет полные данные о текущем игроке
 		"""
-		player = PlayerModel.objects.get(producer=pk)
+		player = PlayerModel.objects.get(producer_id=pk)
 		return Response(
 			serializers.FullProducerInfoSerializer(player).data,
 			status=status.HTTP_200_OK
