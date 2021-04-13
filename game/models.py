@@ -106,7 +106,7 @@ class BrokerModel(models.Model):
 		"""
 		Генерирует код маклера на ход
 		"""
-		return random.randint(0, 999999)
+		return random.randint(111111, 999999)
 
 	player = models.OneToOneField(PlayerModel, on_delete=models.CASCADE, related_name='broker')
 	code = models.DecimalField(max_digits=6, default=generate_broker_code)
