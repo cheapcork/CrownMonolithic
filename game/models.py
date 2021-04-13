@@ -1,3 +1,5 @@
+from random import random
+
 from django.db import models
 from game.services.transporting_cost import get_transporting_cost
 from authorization.models import PlayerBaseModel
@@ -74,7 +76,6 @@ class PlayerModel(PlayerBaseModel):
 	is_bankrupt = models.BooleanField(default=False)
 	status = models.CharField(max_length=20, default='OK', verbose_name='Статус банкротства', editable=False)
 
-
 	class Meta:
 		verbose_name = 'Игрок'
 		verbose_name_plural = 'Игроки'
@@ -100,7 +101,15 @@ class ProducerModel(models.Model):
 
 
 class BrokerModel(models.Model):
+	@staticmethod
+	def generate_broker_code():
+		"""
+		Генерирует код маклера на ход
+		"""
+		return random.randint(0, 999999)
+
 	player = models.OneToOneField(PlayerModel, on_delete=models.CASCADE, related_name='broker')
+	code = models.DecimalField(max_digits=6, default=generate_broker_code)
 
 	class Meta:
 		verbose_name = 'Маклер'
@@ -111,6 +120,10 @@ class BrokerModel(models.Model):
 			return f'Маклер {self.player.nickname}'
 		else:
 			super().__str__()
+
+	def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+		self.code = self.generate_broker_code()
+		super().save()
 
 
 class TransactionModel(models.Model):
