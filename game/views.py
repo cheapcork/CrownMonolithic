@@ -152,6 +152,24 @@ class PlayerViewSet(viewsets.ModelViewSet):
 		return Response(self.get_serializer(request.player).data,
 						status=status.HTTP_200_OK)
 
+	@action(methods=['put'], permission_classes=[IsPlayer], detail=False,
+			url_path='end-turn')
+	def end_turn(self, request):
+		"""
+		Завершает ход
+		"""
+		end_turn(request.player)
+		return Response(status=status.HTTP_200_OK)
+
+	@action(methods=['put'], permission_classes=[IsPlayer], detail=False,
+			url_path='cancel-end-turn')
+	def cancel_end_turn(self, request):
+		"""
+		Завершает ход
+		"""
+		cancel_end_turn(request.player)
+		return Response(status=status.HTTP_200_OK)
+
 
 class ProducerViewSet(ModelViewSet):
 	queryset = ProducerModel.objects.all()
@@ -216,34 +234,6 @@ class ProducerViewSet(ModelViewSet):
 		player = PlayerModel.objects.get(producer=pk)
 		return Response(
 			serializers.FullProducerInfoSerializer(player).data,
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='end-turn')
-	def end_turn(self, request, pk):
-		"""
-		Завершает ход
-		"""
-		player = PlayerModel.objects.get(producer_id=pk)
-		end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} завершил ход',
-			},
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='cancel-end-turn')
-	def cancel_end_turn(self, request, pk):
-		"""
-		Отменяет завершение хода
-		"""
-		player = PlayerModel.objects.get(player_id=pk)
-		cancel_end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} отменил завершение хода'
-			},
 			status=status.HTTP_200_OK
 		)
 
@@ -319,34 +309,6 @@ class BrokerViewSet(ModelViewSet):
 		return Response(
 			{
 				'detail': f'Маклер {broker.player.nickname} отклонил сделку с {producer.player.nickname}'
-			},
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='end-turn')
-	def end_turn(self, request, pk):
-		"""
-		Завершает ход
-		"""
-		player = PlayerModel.objects.get(producer_id=pk)
-		end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} завершил ход',
-			},
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='cancel-end-turn')
-	def cancel_end_turn(self, request, pk):
-		"""
-		Отменяет завершение хода
-		"""
-		player = PlayerModel.objects.get(player_id=pk)
-		cancel_end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} отменил завершение хода'
 			},
 			status=status.HTTP_200_OK
 		)

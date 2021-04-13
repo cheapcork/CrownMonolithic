@@ -267,6 +267,7 @@ def end_turn(player):
 	Завершает ход
 	"""
 	player.ended_turn = True
+	player.save()
 	return
 
 
@@ -275,6 +276,7 @@ def cancel_end_turn(player):
 	Отменяет завершение хода
 	"""
 	player.ended_turn = False
+	player.save()
 	return
 
 
