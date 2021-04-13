@@ -267,6 +267,7 @@ def end_turn(player):
 	Завершает ход
 	"""
 	player.ended_turn = True
+	player.save()
 	return
 
 
@@ -275,7 +276,24 @@ def cancel_end_turn(player):
 	Отменяет завершение хода
 	"""
 	player.ended_turn = False
+	player.save()
 	return
+
+
+def players_finished(session):
+	"""
+	Запускает пересчет хода, если все игроки закончили ход.
+	:param session: current session
+	:return: none
+	"""
+	players_count = session.player.count()
+	players_finished_turn = session.player.filter(ended_turn=True).count()
+	if players_count == players_finished_turn:
+		if session.turn_phase == 'negotiation':
+			change_phase(session, 'transaction')
+		else:
+			count_session(session)
+		[cancel_end_turn(player) for player in session.player.all()]
 
 
 def accept_transaction(producer, broker):

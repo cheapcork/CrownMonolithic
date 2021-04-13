@@ -13,8 +13,9 @@ from rest_framework.decorators import action
 from authorization.services.create_player import create_player
 from authorization.permissions import IsPlayer
 from authorization.serializers import PlayerWithTokenSerializer
-from game.services.normal.data_access.count_session import change_phase, start_session, count_session,\
-	produce_billets, send_trade, cancel_trade, end_turn, cancel_end_turn, accept_transaction, deny_transaction
+from game.services.normal.data_access.count_session import change_phase, start_session,\
+	count_session, produce_billets, send_trade, cancel_trade, end_turn, cancel_end_turn,\
+	accept_transaction, deny_transaction, players_finished
 
 from django.template import loader
 from django.http import HttpResponse
@@ -152,6 +153,33 @@ class PlayerViewSet(viewsets.ModelViewSet):
 		return Response(self.get_serializer(request.player).data,
 						status=status.HTTP_200_OK)
 
+	@action(methods=['put'], permission_classes=[IsPlayer], detail=False,
+			url_path='end-turn')
+	def end_turn(self, request):
+		"""
+		Завершает ход
+		"""
+		if not request.player.session.status == 'started':
+			return Response({
+				'detail': 'Session is not started!'
+			},status=status.HTTP_400_BAD_REQUEST)
+		end_turn(request.player)
+		players_finished(request.player.session)
+		return Response(status=status.HTTP_200_OK)
+
+	@action(methods=['put'], permission_classes=[IsPlayer], detail=False,
+			url_path='cancel-end-turn')
+	def cancel_end_turn(self, request):
+		"""
+		Завершает ход
+		"""
+		if not request.player.session.status == 'started':
+			return Response({
+				'detail': 'Session is not started!'
+			},status=status.HTTP_400_BAD_REQUEST)
+		cancel_end_turn(request.player)
+		return Response(status=status.HTTP_200_OK)
+
 
 class ProducerViewSet(ModelViewSet):
 	queryset = ProducerModel.objects.all()
@@ -216,34 +244,6 @@ class ProducerViewSet(ModelViewSet):
 		player = PlayerModel.objects.get(producer=pk)
 		return Response(
 			serializers.FullProducerInfoSerializer(player).data,
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='end-turn')
-	def end_turn(self, request, pk):
-		"""
-		Завершает ход
-		"""
-		player = PlayerModel.objects.get(producer_id=pk)
-		end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} завершил ход',
-			},
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='cancel-end-turn')
-	def cancel_end_turn(self, request, pk):
-		"""
-		Отменяет завершение хода
-		"""
-		player = PlayerModel.objects.get(player_id=pk)
-		cancel_end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} отменил завершение хода'
-			},
 			status=status.HTTP_200_OK
 		)
 
@@ -319,34 +319,6 @@ class BrokerViewSet(ModelViewSet):
 		return Response(
 			{
 				'detail': f'Маклер {broker.player.nickname} отклонил сделку с {producer.player.nickname}'
-			},
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='end-turn')
-	def end_turn(self, request, pk):
-		"""
-		Завершает ход
-		"""
-		player = PlayerModel.objects.get(producer_id=pk)
-		end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} завершил ход',
-			},
-			status=status.HTTP_200_OK
-		)
-
-	@action(methods=['put'], detail=True, url_path='cancel-end-turn')
-	def cancel_end_turn(self, request, pk):
-		"""
-		Отменяет завершение хода
-		"""
-		player = PlayerModel.objects.get(player_id=pk)
-		cancel_end_turn(player)
-		return Response(
-			{
-				'detail': f'Игрок {player.nickname} отменил завершение хода'
 			},
 			status=status.HTTP_200_OK
 		)
