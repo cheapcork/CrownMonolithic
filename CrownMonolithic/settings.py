@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    # 'authorization.middleware.PlayerAuthMiddleware',
+    'authorization.middleware.PlayerAuthMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission
 
 
 class IsInSession(BasePermission):
@@ -13,16 +13,8 @@ class IsInSession(BasePermission):
 
 class IsThePlayer(BasePermission):
 	"""
-	Является ли отправитель запроса игроком (для фильтрации запросов к другим игрокам)
+	Является ли отправитель запроса указанным игроком
 	"""
 
-	def has_object_permission(self, request, view, obj):
-		pass
-
-
-class SessionIsStarted(BasePermission):
-	"""
-	Проверяет, начата ли сессия
-	"""
-	def has_object_permission(self, request, view, obj):
-		pass
+	def has_permission(self, request, view):
+		return hasattr(request, 'player')

@@ -1,3 +1,4 @@
+from authorization.models import TokenModel
 from game.models import PlayerModel, TransactionModel
 from ..business_logic.count_turn import count_turn
 from ..business_logic.producer import ProducerNormal
@@ -222,10 +223,11 @@ def finish_by_player_count(session_instance):
 
 def create_player(session_instance, nickname):
 	"""
-	Создаёт модель игрока при подключении к лобби
+	Создаёт модель игрока при подключении к лобби вместе с токеном аутентификации
 	"""
 	player = PlayerModel.objects.create(session_id=session_instance.id, nickname=nickname)
 	player.save()
+	# TokenModel.objects.create(player_id=player.id).save()
 	return
 
 
@@ -301,3 +303,4 @@ def deny_transaction(producer, broker):
 	)
 	transaction.status = 'denied'
 	transaction.save()
+	return

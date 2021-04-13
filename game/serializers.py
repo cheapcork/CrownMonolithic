@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from authorization.serializers import TokenSerializer
 from .models import SessionModel, PlayerModel, ProducerModel, BrokerModel, TransactionModel
 
 
@@ -53,8 +55,6 @@ class SessionAdminSerializer(serializers.ModelSerializer):
 		]
 		read_only = [
 			'__all__',
-			# 'player_count',
-			# 'players_finished_turn',
 		]
 
 	@staticmethod
@@ -73,7 +73,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 	"""
 	Сериализатор для игрока
 	"""
-	# role_info = serializers.SerializerMethodField('get_role_info')
+	# token = serializers.SerializerMethodField('get_token_value', read_only=True)
 
 	class Meta:
 		model = PlayerModel
@@ -88,25 +88,12 @@ class PlayerSerializer(serializers.ModelSerializer):
 			'is_bankrupt',
 			'status',
 			'position',
-			# 'role_info',
 		]
 		read_only = [
 			'id',
 			'status',
 			'position'
 		]
-
-	# @staticmethod
-	# def get_role_info(player_instance):
-	# 	roles = {
-	# 		'broker': {'model': BrokerModel, 'serializer': BrokerSerializer},
-	# 		'producer': {'model': ProducerModel, 'serializer': ProducerSerializer}
-	# 	}
-	# 	if player_instance.role == 'unassigned':
-	# 		return 'unassigned'
-	#
-	# 	model = roles[player_instance.role]['model'].objects.get(player=player_instance.id)
-	# 	return roles[player_instance.role]['serializer'](model).data
 
 
 class ProducerSerializer(serializers.ModelSerializer):
