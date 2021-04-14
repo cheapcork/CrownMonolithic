@@ -15,7 +15,7 @@ from authorization.permissions import IsPlayer
 from authorization.serializers import PlayerWithTokenSerializer
 from game.services.normal.data_access.count_session import change_phase, start_session,\
 	count_session, produce_billets, send_trade, cancel_trade, end_turn, cancel_end_turn,\
-	accept_transaction, deny_transaction, players_finished
+	accept_transaction, deny_transaction, finish_by_player_count
 
 from django.template import loader
 from django.http import HttpResponse
@@ -164,7 +164,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
 				'detail': 'Session is not started!'
 			},status=status.HTTP_400_BAD_REQUEST)
 		end_turn(request.player)
-		players_finished(request.player.session)
+		finish_by_player_count(request.player.session)
 		return Response(status=status.HTTP_200_OK)
 
 	@action(methods=['put'], permission_classes=[IsPlayer], detail=False,
@@ -236,16 +236,16 @@ class ProducerViewSet(ModelViewSet):
 			status=status.HTTP_204_NO_CONTENT
 		)
 
-	@action(detail=True)
-	def me(self, request, pk):
-		"""
-		Отправляет полные данные о текущем игроке
-		"""
-		player = PlayerModel.objects.get(producer=pk)
-		return Response(
-			serializers.FullProducerInfoSerializer(player).data,
-			status=status.HTTP_200_OK
-		)
+	# @action(detail=True)
+	# def me(self, request, pk):
+	# 	"""
+	# 	Отправляет полные данные о текущем игроке
+	# 	"""
+	# 	player = PlayerModel.objects.get(producer=pk)
+	# 	return Response(
+	# 		serializers.FullProducerInfoSerializer(player).data,
+	# 		status=status.HTTP_200_OK
+	# 	)
 
 	@action(detail=True, url_path='balance-detail')
 	def balance_detail(self, request, pk):
@@ -282,16 +282,16 @@ class BrokerViewSet(ModelViewSet):
 
 	# permission_classes = [IsInSession]
 
-	@action(detail=True)
-	def me(self, request, pk):
-		"""
-		Отправляет полные данные о текущем игроке
-		"""
-		broker = PlayerModel.objects.get(broker_id=pk)
-		return Response(
-			serializers.PlayerSerializer(broker).data,
-			status=status.HTTP_200_OK
-		)
+	# @action(detail=True)
+	# def me(self, request, pk):
+	# 	"""
+	# 	Отправляет полные данные о текущем игроке
+	# 	"""
+	# 	broker = PlayerModel.objects.get(broker_id=pk)
+	# 	return Response(
+	# 		serializers.PlayerSerializer(broker).data,
+	# 		status=status.HTTP_200_OK
+	# 	)
 
 	@action(methods=['put'], detail=True, url_path='accept')
 	def accept_transaction(self, request, pk):
